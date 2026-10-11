@@ -121,7 +121,12 @@ Document library ─┘  getSP(context)     └─ useLibraryFiles┘        │
   `useLibraryFiles`. The viewer gets its own hook instance (`viewerLibrary`, top 100) so it is not
   limited by *Items per source*; `refresh` reloads all three hooks. A spinner overlays the iframe
   until `onLoad`. Every file has Open (`?web=1`) and Download (`?download=1`) buttons as fallback
-  when an embed is blocked (e.g. `.ai` / `.eps` have no preview).
+  when an embed is blocked (e.g. `.ai` / `.eps` have no preview). `layout: DocumentViewerLayout`
+  (1.4.2) picks the file picker: `strip` (horizontal chips), `sidebarLeft` / `sidebarRight`
+  (`.sidebarWrap` grid `280px | 1fr`, vertical rows in a scrollable `<nav>`, `order` flips for
+  right, stacks < 760 px), `grid` (`auto-fill minmax(150px, 1fr)` tiles). The viewer, current-file
+  row and renderers are shared by all layouts. Web part property `documentLayout` is the default; a
+  screen's `content.layout` overrides it.
 - **Full screen** (1.1.0): copied from the Biography web part — `isFullScreen` toggles
   `neu.fullScreenMode` (fixed, inset 0, z-index 100000) on `NeuRoot`, `fullScreenTop` is the max
   `bottom` of `#SuiteNavWrapper, #SuiteNavPlaceholder, #SuiteNavPlaceHolder, #O365_NavHeader,

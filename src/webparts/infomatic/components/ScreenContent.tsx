@@ -5,7 +5,7 @@
  */
 import * as React from 'react';
 import { NeuCard, NeuNotice } from '../../../components/neu';
-import { DocumentViewer } from '../../../components/DocumentViewer';
+import { DocumentViewer, DocumentViewerLayout } from '../../../components/DocumentViewer';
 import { AccordionLayout, ContentAccordion } from '../../../components/ContentAccordion';
 import { useLibraryFiles } from '../../../hooks/useLibraryFiles';
 import { useContentSections } from '../../../hooks/useContentSections';
@@ -22,6 +22,7 @@ export interface IScreenDataDefaults {
   accordionContentField: string;
   accordionCategoryField: string;
   accordionLayout: AccordionLayout;
+  documentLayout: DocumentViewerLayout;
   isEditMode: boolean;
   /** Bumped by the header Refresh button; blocks reload when it changes. */
   reloadToken: number;
@@ -33,7 +34,7 @@ export interface IScreenContentProps extends IScreenDataDefaults {
 
 /* ---------- documents ---------- */
 
-const DocumentsBlock: React.FC<{ def: IScreenDef; libraryTitle: string } & IScreenDataDefaults> = (p) => {
+const DocumentsBlock: React.FC<{ def: IScreenDef; libraryTitle: string; layout: DocumentViewerLayout } & IScreenDataDefaults> = (p) => {
   // the viewer browses the whole library (newest 100), independent of "Items per source"
   const library = useLibraryFiles(p.libraryTitle, 100, p.dataSiteUrl);
   const first = React.useRef(true);
@@ -44,7 +45,7 @@ const DocumentsBlock: React.FC<{ def: IScreenDef; libraryTitle: string } & IScre
   const n = library.files.length;
   return (
     <NeuCard title={p.libraryTitle || p.def.label} meta={n > 0 ? `${n}${library.total > n ? ` of ${library.total}` : ''} file${n === 1 ? '' : 's'} · newest first` : p.def.caption}>
-      <DocumentViewer files={library.files} siteUrl={p.siteUrl} libraryTitle={p.libraryTitle} loading={library.loading} error={library.error} isEditMode={p.isEditMode} />
+      <DocumentViewer files={library.files} siteUrl={p.siteUrl} libraryTitle={p.libraryTitle} loading={library.loading} error={library.error} isEditMode={p.isEditMode} layout={p.layout} />
     </NeuCard>
   );
 };
@@ -86,7 +87,7 @@ export const ScreenContent: React.FC<IScreenContentProps> = (props) => {
   const c = def.content;
   switch (c.type) {
     case 'documents':
-      return <DocumentsBlock key={def.key} def={def} {...props} libraryTitle={c.libraryTitle || props.libraryTitle} />;
+      return <DocumentsBlock key={def.key} def={def} {...props} libraryTitle={c.libraryTitle || props.libraryTitle} layout={c.layout || props.documentLayout} />;
     case 'accordion':
       return <AccordionBlock key={def.key} def={def} content={c} {...props} />;
     default:

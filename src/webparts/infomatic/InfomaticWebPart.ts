@@ -16,6 +16,7 @@ import { IInfomaticProps } from './components/IInfomaticProps';
 import { getSP } from '../../services/pnpjsConfig';
 import type { ThemeMode } from '../../theme/ThemeContext';
 import type { AccordionLayout } from '../../components/ContentAccordion';
+import type { DocumentViewerLayout } from '../../components/DocumentViewer';
 
 export interface IInfomaticWebPartProps {
   title: string;
@@ -30,6 +31,8 @@ export interface IInfomaticWebPartProps {
   accordionCategoryField: string;
   /** 'accordion' | 'sidebarLeft' | 'sidebarRight' | 'tabs' */
   accordionLayout: string;
+  /** 'strip' | 'sidebarLeft' | 'sidebarRight' | 'grid' */
+  documentLayout: string;
   maxItems: number;
   /** 'site' = follow the SharePoint section theme; 'light' | 'dark' = force. */
   defaultTheme: string;
@@ -62,6 +65,8 @@ export default class InfomaticWebPart extends BaseClientSideWebPart<IInfomaticWe
         accordionCategoryField: this.properties.accordionCategoryField || 'Category',
         accordionLayout: (['accordion', 'sidebarLeft', 'sidebarRight', 'tabs'].indexOf(this.properties.accordionLayout) >= 0
           ? this.properties.accordionLayout : 'accordion') as AccordionLayout,
+        documentLayout: (['strip', 'sidebarLeft', 'sidebarRight', 'grid'].indexOf(this.properties.documentLayout) >= 0
+          ? this.properties.documentLayout : 'strip') as DocumentViewerLayout,
         maxItems: this.properties.maxItems || 8,
         defaultTheme,
         showThemeToggle: this.properties.showThemeToggle !== false,
@@ -191,6 +196,20 @@ export default class InfomaticWebPart extends BaseClientSideWebPart<IInfomaticWe
                     { key: 'sidebarLeft', text: 'Sidebar menu (left)' },
                     { key: 'sidebarRight', text: 'Sidebar menu (right)' },
                     { key: 'tabs', text: 'Tabs by category' }
+                  ]
+                })
+              ]
+            },
+            {
+              groupName: 'Styling — document viewer',
+              groupFields: [
+                PropertyPaneDropdown('documentLayout', {
+                  label: 'Layout',
+                  options: [
+                    { key: 'strip', text: 'Viewer + file strip' },
+                    { key: 'sidebarLeft', text: 'File list (left) + viewer' },
+                    { key: 'sidebarRight', text: 'Viewer + file list (right)' },
+                    { key: 'grid', text: 'Viewer + gallery grid' }
                   ]
                 })
               ]

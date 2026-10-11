@@ -1,5 +1,6 @@
 import type { ThemeMode } from '../../../theme/ThemeContext';
 import type { AccordionLayout } from '../../../components/ContentAccordion';
+import type { DocumentViewerLayout } from '../../../components/DocumentViewer';
 
 export interface IInfomaticProps {
   title: string;
@@ -15,6 +16,7 @@ export interface IInfomaticProps {
   accordionContentField: string;
   accordionCategoryField: string;
   accordionLayout: AccordionLayout;
+  documentLayout: DocumentViewerLayout;
   /** Rows / files read per source (1–50). */
   maxItems: number;
   /** Theme used until the user picks one with the switcher. */

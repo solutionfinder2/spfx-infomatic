@@ -8,7 +8,7 @@ bottom-right shadow, circular icon discs, gradient accent text.
 
 | | |
 |---|---|
-| Solution | `spfx-infomatic` · 1.4.1.0 |
+| Solution | `spfx-infomatic` · 1.4.2.0 |
 | Web part | **Infomatic** (Advanced group) — hosts: SharePoint page, full page, Teams tab, Teams personal app |
 | Repo | https://github.com/solutionfinder2/spfx-infomatic |
 
@@ -50,6 +50,7 @@ bottom-right shadow, circular icon discs, gradient accent text.
 | | Landing page (1.1.0) | Ring navigation | *Ring navigation* = 8 buttons around the circle + KPI discs; *Cards only* = the 1.0 single page (list and files side by side, no navigation) |
 | | List view · Files view | Available | Hidden = the KPI disc is not clickable / the card is not shown |
 | Styling — accordion | Layout (1.4.1) | Accordion | **Accordion** (groups stacked, sections expand in place) · **Sidebar menu (left / right)** (section titles as a menu, one section in a panel) · **Tabs by category** (the chips become tabs with counts; needs a category column, else falls back to Accordion). A screen can override it in `screens.ts` (`layout`) |
+| Styling — document viewer | Layout (1.4.2) | Viewer + file strip | **Viewer + file strip** (horizontal chips below) · **File list (left) + viewer** / **Viewer + file list (right)** (vertical rows beside the viewer, scrollable) · **Viewer + gallery grid** (file tiles below). Per-screen override: `{ type: 'documents', layout: 'grid' }` |
 
 ## Design system
 
@@ -87,6 +88,7 @@ Quality gates: `npx tsc --noEmit -p tsconfig.json` and `npx eslint "src/**/*.{ts
 
 | Version | Highlights |
 | --- | --- |
+| 1.4.2 | Document viewer **Layout** setting (Styling — document viewer): file strip / file list left / file list right / gallery grid, plus a per-screen `layout` override |
 | 1.4.1 | Accordion **Layout** setting (Styling — accordion): Accordion / Sidebar menu left / Sidebar menu right / Tabs by category, plus a per-screen `layout` override |
 | 1.4.0 | **Sections screen** (screen 3): neumorphic `ContentAccordion` + `useContentSections` (Showme Accordion schema, search, category chips, expand / collapse all, rich text panels); **reusable screen blocks** — `screens.ts` declares `content: placeholder | documents | accordion` per screen and `ScreenContent.tsx` renders them (each block owns its data hook, header Refresh reloads them); properties *Accordion list title / content column / category column* |
 | 1.3.0 | **Documents screen** (screen 2): `DocumentViewer` — native `<video>` / `<audio>` / `<img>` for media, SharePoint `embed.aspx?UniqueId=` for PDF / Office / other, Stream player for non-browser video formats; file strip, Open / Download; library hook now returns `UniqueId`; viewer reads up to 100 files |

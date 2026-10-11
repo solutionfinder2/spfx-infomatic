@@ -12,7 +12,12 @@
  */
 export type ScreenContentDef =
   | { type: 'placeholder' }
-  | { type: 'documents'; libraryTitle?: string }
+  | {
+    type: 'documents';
+    libraryTitle?: string;
+    /** Overrides the property pane "Document viewer layout" for this screen. */
+    layout?: 'strip' | 'sidebarLeft' | 'sidebarRight' | 'grid';
+  }
   | {
     type: 'accordion';
     listTitle?: string;
