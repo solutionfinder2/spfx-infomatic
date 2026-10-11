@@ -87,9 +87,26 @@ Document library ─┘  getSP(context)     └─ useLibraryFiles┘        │
   Every other view is wrapped by `shell()` — `.shell` grid `320px minmax(0,1fr)`: compact ring in a
   sticky `<aside>` on the left, content on the right (stacks < 860 px) — and shows the Home disc +
   breadcrumb in the header. `showRing=false` renders the 1.0 single page instead.
-- **Screens** (1.2.0): `src/webparts/infomatic/screens.ts` exports `SCREENS: IScreenDef[]` (key,
-  icon, label, caption) in ring order (clockwise from the top). `ScreenContent` in `Infomatic.tsx`
-  renders the body for `SCREENS[index]`; screens without content yet show a placeholder card.
+- **Screens** (1.2.0 / 1.4.0): `src/webparts/infomatic/screens.ts` exports `SCREENS: IScreenDef[]`
+  (key, icon, label, caption, **content**) in ring order (clockwise from the top).
+  `content: ScreenContentDef` is a discriminated union — `{ type: 'placeholder' }`,
+  `{ type: 'documents', libraryTitle? }`, `{ type: 'accordion', listTitle?, contentField?,
+  categoryField?, showSearch?, showFilter?, showExpandCollapse?, single? }`. Optional titles
+  override the property pane defaults, so one block can appear on several screens with different
+  sources. `components/ScreenContent.tsx` is the dispatcher: `DocumentsBlock` and `AccordionBlock`
+  are small components that **own their data hook** (`useLibraryFiles` top 100 /
+  `useContentSections`), mount when the screen opens and reload when `reloadToken` changes (bumped
+  by the header Refresh). To add a new block type: extend `ScreenContentDef`, write a `XxxBlock`
+  that calls its hook and renders a `NeuCard`, add a `case` to the switch.
+- **Content accordion** (1.4.0): `hooks/useContentSections(listTitle, { contentField, categoryField,
+  siteUrl, max, useSchedule })` is the Showme Accordion loader on the Infomatic plumbing
+  (`getWeb(site)`, fields probe, select only existing columns, Display / schedule filter, SortOrder
+  sort, limit) returning `{ sections, loading, error, checked, contentMissing, hasCategory,
+  missingOptional, hiddenByLimit, refresh }`. `components/ContentAccordion.tsx` is presentation only:
+  search (plain text of the HTML via `plainTextOf`), category chips (`role=tablist`), expand /
+  collapse all, groups, `aria-expanded` section bars, panels animated with the
+  `grid-template-rows: 0fr → 1fr` trick (no height measuring), rich text in a pressed surface with
+  `:global()` element styles. `single` = one open section at a time.
 - **Document viewer** (1.3.0, `components/DocumentViewer.tsx`, screen `documents`): `fileKind(ext)` in
   `models/ILibraryFile.ts` decides the renderer — `video` → `<video src=origin+FileRef>` when
   `isNativeVideo(ext)` (mp4 / webm / m4v / ogv) else the SharePoint embed page (Stream player);

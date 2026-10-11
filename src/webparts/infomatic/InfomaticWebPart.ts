@@ -23,6 +23,10 @@ export interface IInfomaticWebPartProps {
   dataSiteUrl: string;
   listTitle: string;
   libraryTitle: string;
+  /** Content accordion list (same schema as the Showme Accordion solution). */
+  accordionListTitle: string;
+  accordionContentField: string;
+  accordionCategoryField: string;
   maxItems: number;
   /** 'site' = follow the SharePoint section theme; 'light' | 'dark' = force. */
   defaultTheme: string;
@@ -50,6 +54,9 @@ export default class InfomaticWebPart extends BaseClientSideWebPart<IInfomaticWe
         dataSiteUrl: this.properties.dataSiteUrl,
         listTitle: this.properties.listTitle,
         libraryTitle: this.properties.libraryTitle,
+        accordionListTitle: this.properties.accordionListTitle,
+        accordionContentField: this.properties.accordionContentField || 'Content',
+        accordionCategoryField: this.properties.accordionCategoryField || 'Category',
         maxItems: this.properties.maxItems || 8,
         defaultTheme,
         showThemeToggle: this.properties.showThemeToggle !== false,
@@ -116,6 +123,21 @@ export default class InfomaticWebPart extends BaseClientSideWebPart<IInfomaticWe
                   label: 'Document library title',
                   description: 'Newest files are shown as tiles. Empty = no files section.',
                   placeholder: 'Documents'
+                }),
+                PropertyPaneTextField('accordionListTitle', {
+                  label: 'Accordion list title',
+                  description: 'Rich text sections for the "Sections" screen (same schema as the Showme Accordion: Title, a rich text column, optional Category, SortOrder, Expanded, Display, StartDate, EndDate).',
+                  placeholder: 'ContentSections'
+                }),
+                PropertyPaneTextField('accordionContentField', {
+                  label: 'Accordion content column',
+                  description: 'Internal name of the rich text column.',
+                  placeholder: 'Content'
+                }),
+                PropertyPaneTextField('accordionCategoryField', {
+                  label: 'Accordion category column',
+                  description: 'Internal name of the Choice column used for grouping and the filter chips. Enter "none" for no grouping.',
+                  placeholder: 'Category'
                 }),
                 PropertyPaneSlider('maxItems', {
                   label: 'Items per source',

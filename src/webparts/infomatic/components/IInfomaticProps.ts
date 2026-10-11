@@ -9,6 +9,10 @@ export interface IInfomaticProps {
   listTitle: string;
   /** Document library read for the file tiles. Empty = no files section. */
   libraryTitle: string;
+  /** Content accordion (Sections screen and any screen declared as `accordion`). */
+  accordionListTitle: string;
+  accordionContentField: string;
+  accordionCategoryField: string;
   /** Rows / files read per source (1–50). */
   maxItems: number;
   /** Theme used until the user picks one with the switcher. */
