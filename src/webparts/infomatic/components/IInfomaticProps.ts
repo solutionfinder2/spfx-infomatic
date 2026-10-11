@@ -14,6 +14,7 @@ export interface IInfomaticProps {
   /** Theme used until the user picks one with the switcher. */
   defaultTheme: ThemeMode;
   showThemeToggle: boolean;
+  showFullScreenButton: boolean;
   showRing: boolean;
   showList: boolean;
   showFiles: boolean;

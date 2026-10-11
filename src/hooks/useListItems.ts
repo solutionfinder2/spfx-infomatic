@@ -17,6 +17,7 @@ export interface IUseListItemsResult {
 interface IRow {
   Id: number; Title: string; Modified?: string; Author?: { Title?: string };
   Description?: string; Icon?: string; Category?: string; SortOrder?: number;
+  Url?: { Url?: string; Description?: string } | string; Content?: string;
 }
 
 /**
@@ -57,7 +58,10 @@ export const useListItems = (listTitle: string, max: number = 8, siteUrl?: strin
         Description: r.Description,
         Icon: r.Icon,
         Category: r.Category,
-        SortOrder: r.SortOrder
+        SortOrder: r.SortOrder,
+        Url: typeof r.Url === 'string' ? r.Url : (r.Url && r.Url.Url) || undefined,
+        UrlText: typeof r.Url === 'object' && r.Url ? r.Url.Description : undefined,
+        Content: r.Content
       })));
       setTotal(info.ItemCount);
       setColumns(optional);

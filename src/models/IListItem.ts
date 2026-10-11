@@ -11,7 +11,12 @@ export interface IListItem {
   Icon?: string;
   Category?: string;
   SortOrder?: number;
+  /** Hyperlink column "Url": where the navigation node leads (opened from the item view). */
+  Url?: string;
+  UrlText?: string;
+  /** Rich text column "Content": body shown on the item view. */
+  Content?: string;
 }
 
 /** Columns the list hook looks for beyond Id / Title / Modified / Author. */
-export const LIST_OPTIONAL_COLUMNS = ['Description', 'Icon', 'Category', 'SortOrder'];
+export const LIST_OPTIONAL_COLUMNS = ['Description', 'Icon', 'Category', 'SortOrder', 'Url', 'Content'];

@@ -190,6 +190,170 @@
   color: var(--neu-accent-2);
 }
 
+/* ---------- navigation header (non-landing views) ---------- */
+
+.crumbs {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.homeDisc {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  outline-offset: 4px;
+
+  &:hover .homeTitle {
+    text-decoration: underline;
+  }
+}
+
+.homeTitle {
+  font-size: 16px;
+}
+
+.crumbSep {
+  color: var(--neu-muted);
+  font-size: 12px;
+}
+
+.crumbCurrent {
+  font-size: 16px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.statButton {
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  width: 100%;
+  outline-offset: 4px;
+
+  &:hover .statValue {
+    color: var(--neu-accent-1);
+  }
+
+  &[aria-pressed='true'] {
+    box-shadow: var(--neu-press);
+  }
+}
+
+.statActive {
+  box-shadow: var(--neu-press-sm) !important;
+}
+
+.statChevron {
+  margin-left: auto;
+  color: var(--neu-muted);
+}
+
+.rowButton {
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  width: 100%;
+  outline-offset: 3px;
+
+  &:hover .rowTitle {
+    color: var(--neu-accent-1);
+  }
+}
+
+/* ---------- item view ---------- */
+
+.itemView {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.itemHero {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 26px 28px;
+}
+
+.itemHeroText {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.caption {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--neu-accent-1);
+}
+
+.itemTitle {
+  margin: 0;
+  font-size: 24px;
+  line-height: 1.15;
+}
+
+.itemMeta {
+  font-size: 12px;
+  color: var(--neu-muted);
+}
+
+.itemActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.prose {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+
+  :global(img) {
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+  }
+
+  :global(a) {
+    color: var(--neu-accent-1);
+  }
+}
+
+.pager {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.linkButton {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  color: var(--neu-accent-1);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
 /* ---------- misc ---------- */
 
 .empty {

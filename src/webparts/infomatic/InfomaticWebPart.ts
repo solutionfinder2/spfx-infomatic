@@ -27,6 +27,7 @@ export interface IInfomaticWebPartProps {
   /** 'site' = follow the SharePoint section theme; 'light' | 'dark' = force. */
   defaultTheme: string;
   showThemeToggle: boolean;
+  showFullScreenButton: boolean;
   showRing: boolean;
   showList: boolean;
   showFiles: boolean;
@@ -52,6 +53,7 @@ export default class InfomaticWebPart extends BaseClientSideWebPart<IInfomaticWe
         maxItems: this.properties.maxItems || 8,
         defaultTheme,
         showThemeToggle: this.properties.showThemeToggle !== false,
+        showFullScreenButton: this.properties.showFullScreenButton !== false,
         showRing: this.properties.showRing !== false,
         showList: this.properties.showList !== false,
         showFiles: this.properties.showFiles !== false,
@@ -142,9 +144,14 @@ export default class InfomaticWebPart extends BaseClientSideWebPart<IInfomaticWe
                   onText: 'Shown — users can switch and their choice is remembered',
                   offText: 'Hidden — the default theme always applies'
                 }),
-                PropertyPaneToggle('showRing', { label: 'Infographic ring', onText: 'Shown', offText: 'Hidden' }),
-                PropertyPaneToggle('showList', { label: 'List card', onText: 'Shown', offText: 'Hidden' }),
-                PropertyPaneToggle('showFiles', { label: 'Files card', onText: 'Shown', offText: 'Hidden' })
+                PropertyPaneToggle('showFullScreenButton', { label: 'Full screen button', onText: 'Shown', offText: 'Hidden' }),
+                PropertyPaneToggle('showRing', {
+                  label: 'Landing page',
+                  onText: 'Ring navigation (up to 8 buttons around the circle)',
+                  offText: 'Cards only (list and files side by side)'
+                }),
+                PropertyPaneToggle('showList', { label: 'List view (via the "List items" disc)', onText: 'Available', offText: 'Hidden' }),
+                PropertyPaneToggle('showFiles', { label: 'Files view (via the "Files & folders" disc)', onText: 'Available', offText: 'Hidden' })
               ]
             }
           ]

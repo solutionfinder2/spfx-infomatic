@@ -14,9 +14,9 @@ const cx = (...names: (string | false | undefined)[]): string => names.filter(Bo
 
 /* ---------- root: applies the theme attribute ---------- */
 
-export const NeuRoot: React.FC<{ className?: string; children?: React.ReactNode }> = ({ className, children }) => {
+export const NeuRoot: React.FC<{ className?: string; style?: React.CSSProperties; children?: React.ReactNode }> = ({ className, style, children }) => {
   const { mode } = useTheme();
-  return <div className={cx(neu.root, className)} data-theme={mode}>{children}</div>;
+  return <div className={cx(neu.root, className)} style={style} data-theme={mode}>{children}</div>;
 };
 
 /* ---------- surfaces ---------- */

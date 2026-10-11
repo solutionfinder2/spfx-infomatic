@@ -13,6 +13,15 @@
   margin-bottom: 72px;
 }
 
+/* full circle: labels above the top node need room too */
+.ringCircle {
+  margin-top: 56px;
+  margin-bottom: 64px;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .center {
   position: absolute;
   transform: translate(-50%, -50%);
@@ -21,6 +30,50 @@
 .centerDisc {
   width: 190px;
   height: 190px;
+}
+
+.centerButton {
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  outline-offset: 4px;
+
+  &:hover {
+    transform: scale(1.02);
+  }
+
+  &:active {
+    box-shadow: var(--neu-press);
+  }
+}
+
+.centerIcon {
+  margin-top: 8px;
+  font-size: 16px;
+  color: var(--neu-muted);
+}
+
+.discActive {
+  box-shadow: var(--neu-press) !important;
+}
+
+.nodeActive .caption {
+  color: var(--neu-accent-2);
+}
+
+.active .label {
+  color: var(--neu-accent-1);
+}
+
+.top {
+  bottom: 100%;
+  left: 50%;
+  margin-bottom: 10px;
+  transform: translateX(-50%);
+  text-align: center;
+  align-items: center;
 }
 
 .centerText {

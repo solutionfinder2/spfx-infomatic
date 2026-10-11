@@ -1,8 +1,9 @@
 /**
- * The sample's layout: a large central disc with up to seven icon circles on
- * an arc below it, labels alternating left / right, beads along an inner arc.
- * Positions are percentages of a 100 x 62 design box (aspect-ratio keeps them
- * proportional); below 700px the component renders the nodes as a plain list.
+ * Infographic ring.
+ *   layout="arc"    — the sample: central disc, up to 7 nodes on the lower half-circle.
+ *   layout="circle" — navigation: up to 8 nodes all the way around the disc (1.1.0).
+ * Positions are percentages of a design box (aspect-ratio keeps them proportional);
+ * below 700px the nodes are rendered as a plain list instead.
  */
 import * as React from 'react';
 import { Icon } from '@fluentui/react';
@@ -18,64 +19,95 @@ export interface IRingNode {
   caption?: string;
   href?: string;
   onClick?: () => void;
+  /** Highlighted node (current view). */
+  active?: boolean;
 }
 
 export interface INeuRingProps {
   title: string;
   subtitle?: string;
   nodes: IRingNode[];
-  /** Maximum nodes drawn on the arc (default 7, like the sample). */
+  layout?: 'arc' | 'circle';
+  /** Maximum nodes drawn (default 7 for arc, 8 for circle). */
   max?: number;
+  /** Makes the centre disc a button (e.g. back to the landing page). */
+  onCenterClick?: () => void;
+  centerTitle?: string;
+  /** Icon shown under the title in the centre when it is clickable. */
+  centerIcon?: string;
 }
 
-const CX = 50;      // centre x (% of width)
-const CY = 22;      // centre y (% of width — converted to % of height below)
-const R = 36;       // node arc radius (% of width)
-const R_IN = 24;    // bead arc radius
-const ASPECT = 0.62; // height / width of the design box
+interface IGeometry { cx: number; cy: number; r: number; rIn: number; aspect: number; disc: number }
 
-const toTop = (yPctOfWidth: number): string => `${(yPctOfWidth / ASPECT).toFixed(2)}%`;
+/* all values in % of the container width; `aspect` = height / width */
+const ARC: IGeometry = { cx: 50, cy: 22, r: 36, rIn: 24, aspect: 0.62, disc: 190 };
+const CIRCLE: IGeometry = { cx: 50, cy: 50, r: 34, rIn: 23, aspect: 0.92, disc: 210 };
 
-const polar = (deg: number, r: number): { x: number; y: number } => {
-  const rad = (deg * Math.PI) / 180;
-  return { x: CX + r * Math.cos(rad), y: CY - r * Math.sin(rad) };
-};
+type Side = 'left' | 'right' | 'top' | 'bottom';
 
-export const NeuRing: React.FC<INeuRingProps> = ({ title, subtitle, nodes, max = 7 }) => {
-  const shown = nodes.slice(0, Math.max(1, Math.min(max, 9)));
+export const NeuRing: React.FC<INeuRingProps> = ({ title, subtitle, nodes, layout = 'arc', max, onCenterClick, centerTitle, centerIcon }) => {
+  const g = layout === 'circle' ? CIRCLE : ARC;
+  const limit = Math.max(1, Math.min(max || (layout === 'circle' ? 8 : 7), 12));
+  const shown = nodes.slice(0, limit);
   const n = shown.length;
-  const angle = (i: number): number => (n === 1 ? 270 : 180 + (i * 180) / (n - 1));
 
-  const beads: { x: number; y: number }[] = [];
-  for (let i = 0; i < n - 1; i++) {
-    const a = (angle(i) + angle(i + 1)) / 2;
-    beads.push(polar(a, R_IN));
-    beads.push(polar(angle(i), R_IN));
+  const toTop = (yPctOfWidth: number): string => `${(yPctOfWidth / g.aspect).toFixed(2)}%`;
+  const polar = (deg: number, r: number): { x: number; y: number } => {
+    const rad = (deg * Math.PI) / 180;
+    return { x: g.cx + r * Math.cos(rad), y: g.cy - r * Math.sin(rad) };
+  };
+  // arc: left → bottom → right; circle: clockwise from the top
+  const angle = (i: number): number => (layout === 'circle'
+    ? 90 - (i * 360) / Math.max(n, 1)
+    : n === 1 ? 270 : 180 + (i * 180) / (n - 1));
+  const side = (deg: number): Side => {
+    const rad = (deg * Math.PI) / 180;
+    const c = Math.cos(rad);
+    const s = Math.sin(rad);
+    if (c >= 0.45) { return 'right'; }
+    if (c <= -0.45) { return 'left'; }
+    return s > 0 ? 'top' : 'bottom';
+  };
+
+  const beads: { x: number; y: number; big: boolean }[] = [];
+  const segments = layout === 'circle' ? n : n - 1;
+  for (let i = 0; i < segments; i++) {
+    const a0 = angle(i);
+    const a1 = layout === 'circle' && i === n - 1 ? angle(0) - 360 : angle(i + 1);
+    beads.push({ ...polar((a0 + a1) / 2, g.rIn), big: false });
+    beads.push({ ...polar(a0, g.rIn), big: true });
   }
-  if (n > 1) { beads.push(polar(angle(n - 1), R_IN)); }
+  if (layout !== 'circle' && n > 1) { beads.push({ ...polar(angle(n - 1), g.rIn), big: true }); }
 
-  const side = (deg: number): 'left' | 'right' | 'bottom' => (deg < 255 ? 'left' : deg > 285 ? 'right' : 'bottom');
+  const centerBody = (
+    <div className={styles.centerText}>
+      <span className={`${neu.gradientText} ${styles.centerTitle}`}>{title}</span>
+      {subtitle && <span className={styles.centerSubtitle}>{subtitle}</span>}
+      {onCenterClick && centerIcon && <Icon iconName={centerIcon} className={styles.centerIcon} />}
+    </div>
+  );
 
   return (
     <div className={styles.wrap}>
-      <div className={styles.ring} aria-hidden={n === 0}>
+      <div className={`${styles.ring} ${layout === 'circle' ? styles.ringCircle : ''}`} style={{ aspectRatio: `100 / ${Math.round(g.aspect * 100)}` }} aria-hidden={n === 0}>
         {/* central disc */}
-        <div className={styles.center} style={{ left: `${CX}%`, top: toTop(CY) }}>
-          <div className={`${neu.circle} ${styles.centerDisc}`}>
-            <div className={styles.centerText}>
-              <span className={`${neu.gradientText} ${styles.centerTitle}`}>{title}</span>
-              {subtitle && <span className={styles.centerSubtitle}>{subtitle}</span>}
-            </div>
-          </div>
+        <div className={styles.center} style={{ left: `${g.cx}%`, top: toTop(g.cy) }}>
+          {onCenterClick
+            ? (
+              <button type="button" className={`${neu.circle} ${styles.centerDisc} ${styles.centerButton}`} style={{ width: g.disc, height: g.disc }} title={centerTitle} aria-label={centerTitle || title} onClick={onCenterClick}>
+                {centerBody}
+              </button>
+            )
+            : <div className={`${neu.circle} ${styles.centerDisc}`} style={{ width: g.disc, height: g.disc }}>{centerBody}</div>}
         </div>
 
         {beads.map((b, i) => (
-          <span key={`bead-${i}`} className={`${neu.bead} ${i % 2 === 0 ? styles.beadBig : styles.beadSmall}`} style={{ left: `${b.x}%`, top: toTop(b.y) }} />
+          <span key={`bead-${i}`} className={`${neu.bead} ${b.big ? styles.beadBig : styles.beadSmall}`} style={{ left: `${b.x}%`, top: toTop(b.y) }} />
         ))}
 
         {shown.map((node, i) => {
           const a = angle(i);
-          const p = polar(a, R);
+          const p = polar(a, g.r);
           const s = side(a);
           const body = (
             <>
@@ -84,12 +116,14 @@ export const NeuRing: React.FC<INeuRingProps> = ({ title, subtitle, nodes, max =
               {node.description && <span className={styles.description}>{node.description}</span>}
             </>
           );
+          const textCls = `${styles.text} ${styles[s]} ${node.active ? styles.active : ''}`;
           return (
-            <div key={node.key} className={styles.node} style={{ left: `${p.x}%`, top: toTop(p.y) }}>
-              <NeuCircle icon={node.icon} size={74} title={node.label} onClick={node.onClick} />
+            <div key={node.key} className={`${styles.node} ${node.active ? styles.nodeActive : ''}`} style={{ left: `${p.x}%`, top: toTop(p.y) }}>
+              <NeuCircle icon={node.icon} size={74} title={node.label} onClick={node.onClick} className={node.active ? styles.discActive : undefined} />
               {node.href
-                ? <a className={`${styles.text} ${styles[s]}`} href={node.href} target="_blank" rel="noopener noreferrer">{body}</a>
-                : <div className={`${styles.text} ${styles[s]}`} onClick={node.onClick} role={node.onClick ? 'button' : undefined} tabIndex={node.onClick ? 0 : undefined}>{body}</div>}
+                ? <a className={textCls} href={node.href} target="_blank" rel="noopener noreferrer">{body}</a>
+                : <div className={textCls} onClick={node.onClick} role={node.onClick ? 'button' : undefined} tabIndex={node.onClick ? 0 : undefined}
+                  onKeyDown={node.onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (node.onClick) { node.onClick(); } } } : undefined}>{body}</div>}
             </div>
           );
         })}
@@ -97,10 +131,16 @@ export const NeuRing: React.FC<INeuRingProps> = ({ title, subtitle, nodes, max =
 
       {/* narrow screens: same content as a list */}
       <ol className={styles.list}>
+        {onCenterClick && (
+          <li className={styles.listItem}>
+            <NeuCircle icon={centerIcon || 'Home'} size={52} small title={centerTitle} onClick={onCenterClick} />
+            <div className={styles.listText}><span className={`${styles.label} ${neu.gradientText}`}>{title}</span>{subtitle && <span className={styles.description}>{subtitle}</span>}</div>
+          </li>
+        )}
         {shown.map((node, i) => (
           <li key={node.key} className={styles.listItem}>
-            <NeuCircle icon={node.icon} size={52} small title={node.label} onClick={node.onClick} />
-            <div className={styles.listText}>
+            <NeuCircle icon={node.icon} size={52} small title={node.label} onClick={node.onClick} className={node.active ? styles.discActive : undefined} />
+            <div className={styles.listText} onClick={node.onClick} role={node.onClick ? 'button' : undefined} tabIndex={node.onClick ? 0 : undefined}>
               <span className={styles.caption}>{node.caption || `Step ${String(i + 1).padStart(2, '0')}`}</span>
               {node.href
                 ? <a className={`${styles.label} ${neu.link}`} href={node.href} target="_blank" rel="noopener noreferrer">{node.label}</a>

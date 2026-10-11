@@ -68,17 +68,31 @@ Document library ─┘  getSP(context)     └─ useLibraryFiles┘        │
   `.root` (light) and `.root[data-theme='dark']`. Children only ever use `var(--neu-*)`, so no
   component needs to know the mode. Sass `@extend` (not CSS-modules `composes`) is used for class
   inheritance because it is resolved at compile time by the SPFx sass plugin.
-- **Ring geometry** (`NeuRing.tsx`): design box 100 × 62, centre (50, 22), node radius 36, bead
-  radius 24 — all in % of width; `aspect-ratio: 100 / 62` keeps them proportional. Node *i* of *n*
-  sits at angle `180 + i·180/(n−1)` degrees (left → bottom → right). Labels go left of the node for
-  angles < 255°, right for > 285°, below otherwise. Under 700 px the arc is hidden and the `<ol>`
-  fallback is shown.
+- **Ring geometry** (`NeuRing.tsx`, two layouts selected by the `layout` prop). All numbers are % of
+  the ring width; `toTop(y) = y / aspect` converts to % of height and `aspect-ratio` is set inline.
+  - `arc` (1.0 look): box 100 × 62, centre (50, 22), node radius 36, bead radius 24, up to 7 nodes
+    at `180 + i·180/(n−1)`° (left → bottom → right).
+  - `circle` (1.1 landing page): box 100 × 92, centre (50, 50), node radius 34, bead radius 23, up
+    to 8 nodes at `90 − i·360/n`° (clockwise from the top).
+  - Label side from the angle: `cos ≥ 0.45` → right, `cos ≤ −0.45` → left, else above (`sin > 0`)
+    or below. `active` nodes get the pressed disc + accent label. `onCenterClick` turns the centre
+    disc into a `<button>` (the Home link) and adds a Home entry to the `<ol>` fallback (< 700 px).
+- **Views** (1.1.0, `Infomatic.tsx`): `type View = home | list | files | item(id)`. `go(view)` pushes
+  `{ infomatic: view }` with `history.pushState`, a `popstate` listener restores it, so the browser
+  Back button works and a reload lands on the last view. The landing page renders the circle ring
+  (nodes → `go(item)`) and KPI discs (→ `go(list)` / `go(files)`); other views show the Home disc +
+  breadcrumb in the header. `showRing=false` renders the 1.0 single page instead.
+- **Full screen** (1.1.0): copied from the Biography web part — `isFullScreen` toggles
+  `neu.fullScreenMode` (fixed, inset 0, z-index 100000) on `NeuRoot`, `fullScreenTop` is the max
+  `bottom` of `#SuiteNavWrapper, #SuiteNavPlaceholder, #SuiteNavPlaceHolder, #O365_NavHeader,
+  #spSiteHeader` (re-measured on resize), `scrollTo(0,0)` on enter, Esc exits.
 - **Site URL** (1.0.1): `services/pnpjsConfig.ts` `normalizeSiteUrl()` + `getWeb(siteUrl?)` →
   `Web([sp.web, url])` or `sp.web`; both hooks take a trailing `siteUrl` and have it in their deps.
   Library size comes from `File/Length` with `$expand=File` — `File_x0020_Size` is a computed view
   field and the REST items endpoint rejects it in `$select`.
 - **Hooks** probe the list once (`fields.select('InternalName')`) and select the optional columns only
-  when present; both expose `total` (ItemCount) in addition to the rows, so the KPI discs are right
+  when present (`Description`, `Icon`, `Category`, `SortOrder`, `Url` → `{Url, Description}` is
+  flattened to `Url` / `UrlText`, `Content`); both expose `total` (ItemCount) in addition to the rows, so the KPI discs are right
   even when `maxItems` is small. The library hook rejects non-library templates with a readable
   message for editors.
 

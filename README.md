@@ -8,7 +8,7 @@ bottom-right shadow, circular icon discs, gradient accent text.
 
 | | |
 |---|---|
-| Solution | `spfx-infomatic` · 1.0.1.0 |
+| Solution | `spfx-infomatic` · 1.1.0.0 |
 | Web part | **Infomatic** (Advanced group) — hosts: SharePoint page, full page, Teams tab, Teams personal app |
 | Repo | https://github.com/solutionfinder2/spfx-infomatic |
 
@@ -16,13 +16,16 @@ bottom-right shadow, circular icon discs, gradient accent text.
 
 | Area | What it does |
 | --- | --- |
-| Header | Gradient title + subtitle, **Refresh**, and the **theme switcher** (sun / moon pill). |
+| Header | Gradient title + subtitle, **Refresh**, the **theme switcher** (sun / moon pill) and the **full screen** button. On every page but the landing page the title is replaced by a **Home disc + breadcrumb** that returns to the landing page. |
+| Full screen (1.1.0) | Same behaviour as the Biography web part: the web part is pinned under the Microsoft 365 / site header (measured from `#SuiteNavWrapper`, `#spSiteHeader`, …), the page is scrolled to the top, **Esc** or the button exits. Can be hidden per web part. |
+| Landing page (1.1.0) | The infographic ring **is the navigation**: up to **8 icon buttons around the full circle** (clockwise from the top), each opening the item page of a list row. The **centre disc is a Home button** that always returns to the landing page. The KPI discs *List items* and *Files & folders* open the list and the files view. The browser **Back** button walks the views (`history.pushState`). |
+| Item page (1.1.0) | Hero (icon disc, category caption, title, author · updated), **Open** button when the row has a `Url` hyperlink column, **Open item** (SharePoint form), *Summary* (`Description`), *Content* (rich text column `Content`, rendered as HTML), Previous / Landing page / Next. |
 | Theme switcher | Light ↔ dark. The choice is stored per browser (`localStorage` key `infomatic.theme`) and shared by every Infomatic web part; without a choice the web part follows **Default theme** (site / section theme, light or dark). A storage event keeps several web parts on one page in sync. Switcher off = the default always applies. |
 | KPI discs | List items (ItemCount), files & folders, size of the latest files, last update ("3 hours ago"). |
-| Infographic ring | The sample's layout: a central disc with the title and up to **7 icon circles on an arc** with beads between them, labels alternating left / right. Nodes are the list rows (icon from an `Icon` column — any Fluent UI icon name — else a cycling set; caption from `Category` else "Step 01"; description from `Description` else the modified date). Without a list the ring shows the newest files. Collapses to a vertical list under 700 px. |
-| List card | Pressed rows: icon disc, title, description or author · date, category chip, relative time; each row opens the item form; link to the list. |
+| Infographic ring | The sample's look: a central disc with the title, icon circles with beads between them, captions / labels / descriptions placed left, right, above or below depending on the angle. `layout="circle"` (landing page, 8 nodes all around) or `layout="arc"` (the original 7-node half circle). Nodes are the list rows (icon from an `Icon` column — any Fluent UI icon name — else a cycling set; caption from `Category` else "01"; description from `Description`). Without a list the ring shows the newest files. Collapses to a vertical list under 700 px (with a Home entry). |
+| List card | Pressed rows: icon disc, title, description or author · date, category chip, relative time; each row opens the item page; link to the list. |
 | Files card | Raised tiles: file-type disc (Word / Excel / PowerPoint / PDF / image / video / …), extension, name, size · relative time; opens the file; link to the library. |
-| Schema-aware | Any list works (`Id`, `Title`, `Modified`, `Author` always; `Description`, `Icon`, `Category`, `SortOrder` when present). Any document library works (folders skipped, newest first). Editors see configuration errors; viewers never do. |
+| Schema-aware | Any list works (`Id`, `Title`, `Modified`, `Author` always; `Description`, `Icon`, `Category`, `SortOrder`, `Url` (hyperlink), `Content` (rich text) when present). Any document library works (folders skipped, newest first). Editors see configuration errors; viewers never do. |
 | Theme-safe | No Fluent UI surfaces (DetailsList, MessageBar) are used inside the dark surface — everything is drawn with the design-system classes, so dark mode is consistent. |
 
 ## Settings (property pane)
@@ -36,7 +39,9 @@ bottom-right shadow, circular icon discs, gradient accent text.
 | Appearance | Title / Subtitle | Infomatic / … | Gradient title in the header and the ring |
 | | Default theme | Follow the site | Site / section theme (`isInverted`), Light, Dark |
 | | Theme switcher | Shown | Hidden = users cannot switch |
-| | Infographic ring · List card · Files card | Shown | Show / hide each section |
+| | Full screen button (1.1.0) | Shown | Hidden = no full-screen mode |
+| | Landing page (1.1.0) | Ring navigation | *Ring navigation* = 8 buttons around the circle + KPI discs; *Cards only* = the 1.0 single page (list and files side by side, no navigation) |
+| | List view · Files view | Available | Hidden = the KPI disc is not clickable / the card is not shown |
 
 ## Design system
 
@@ -74,5 +79,6 @@ Quality gates: `npx tsc --noEmit -p tsconfig.json` and `npx eslint "src/**/*.{ts
 
 | Version | Highlights |
 | --- | --- |
+| 1.1.0 | **Full screen** (Biography behaviour: pinned under the suite / site header, Esc exits, property *Full screen button*); **landing page = ring navigation** with up to **8 buttons around the full circle** (`NeuRing layout="circle"`), **centre disc = Home**; item page (hero, `Url` Open button, `Description`, rich-text `Content`, Previous / Next), list and files views opened from the KPI discs, Home disc + breadcrumb in the header, browser Back support; new optional list columns `Url` and `Content`; `showRing` off = 1.0 cards layout |
 | 1.0.1 | Fix: file size is read from `File/Length` (`File_x0020_Size` cannot be `$select`ed and broke every library); **Site URL** setting to read the list / library from another site (`getWeb()` / `normalizeSiteUrl()`); readable "not found on <site>" errors for editors; links follow the data site |
 | 1.0.0 | Neumorphic design system with light / dark switcher (persisted), list + document-library hooks, KPI discs, infographic ring, list rows, file tiles, property pane (data sources, appearance), sample-list script |

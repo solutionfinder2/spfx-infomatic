@@ -44,6 +44,20 @@ $radiusSm: 14px;
   }
 }
 
+/* FEATURE (ask: same full screen as the Biography web part): fixed overlay under
+   the suite bar + site header; the top offset is measured live and set inline. */
+.fullScreenMode {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100000;
+  overflow: auto;
+  border-radius: 0;
+  padding: 24px 32px;
+}
+
 .root[data-theme='dark'] {
   --neu-bg: #262a33;
   --neu-bg-raised: linear-gradient(145deg, #2a2f39, #22262e);

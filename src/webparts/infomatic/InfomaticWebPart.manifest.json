@@ -31,6 +31,7 @@
       "maxItems": 8,
       "defaultTheme": "site",
       "showThemeToggle": true,
+      "showFullScreenButton": true,
       "showRing": true,
       "showList": true,
       "showFiles": true
