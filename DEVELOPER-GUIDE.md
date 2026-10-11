@@ -89,8 +89,16 @@ Document library ─┘  getSP(context)     └─ useLibraryFiles┘        │
   breadcrumb in the header. `showRing=false` renders the 1.0 single page instead.
 - **Screens** (1.2.0): `src/webparts/infomatic/screens.ts` exports `SCREENS: IScreenDef[]` (key,
   icon, label, caption) in ring order (clockwise from the top). `ScreenContent` in `Infomatic.tsx`
-  renders the body for `SCREENS[index]` — currently a placeholder card; this is where the per-screen
-  content goes.
+  renders the body for `SCREENS[index]`; screens without content yet show a placeholder card.
+- **Document viewer** (1.3.0, `components/DocumentViewer.tsx`, screen `documents`): `fileKind(ext)` in
+  `models/ILibraryFile.ts` decides the renderer — `video` → `<video src=origin+FileRef>` when
+  `isNativeVideo(ext)` (mp4 / webm / m4v / ogv) else the SharePoint embed page (Stream player);
+  `audio` → `<audio>`; `image` → `<img>`; `pdf` / `office` / `text` / `other` → `<iframe
+  src="<site>/_layouts/15/embed.aspx?UniqueId=<guid>">`. `UniqueId` is now selected by
+  `useLibraryFiles`. The viewer gets its own hook instance (`viewerLibrary`, top 100) so it is not
+  limited by *Items per source*; `refresh` reloads all three hooks. A spinner overlays the iframe
+  until `onLoad`. Every file has Open (`?web=1`) and Download (`?download=1`) buttons as fallback
+  when an embed is blocked (e.g. `.ai` / `.eps` have no preview).
 - **Full screen** (1.1.0): copied from the Biography web part — `isFullScreen` toggles
   `neu.fullScreenMode` (fixed, inset 0, z-index 100000) on `NeuRoot`, `fullScreenTop` is the max
   `bottom` of `#SuiteNavWrapper, #SuiteNavPlaceholder, #SuiteNavPlaceHolder, #O365_NavHeader,

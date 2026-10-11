@@ -25,7 +25,7 @@ export interface IUseLibraryFilesResult {
 }
 
 interface IRow {
-  Id: number; FileLeafRef: string; FileRef: string; Modified: string;
+  Id: number; UniqueId: string; FileLeafRef: string; FileRef: string; Modified: string;
   Editor?: { Title?: string; EMail?: string };
   /** File_x0020_Size is a computed view field and cannot be $selected; File/Length can. */
   File?: { Length?: string | number };
@@ -55,7 +55,7 @@ export const useLibraryFiles = (libraryTitle: string, max: number = 8, siteUrl?:
       const [info, rows] = await Promise.all([
         list.select('ItemCount', 'BaseTemplate')() as Promise<{ ItemCount: number; BaseTemplate: number }>,
         list.items
-          .select('Id', 'FileLeafRef', 'FileRef', 'Modified', 'Editor/Title', 'Editor/EMail', 'File/Length')
+          .select('Id', 'UniqueId', 'FileLeafRef', 'FileRef', 'Modified', 'Editor/Title', 'Editor/EMail', 'File/Length')
           .expand('Editor', 'File')
           .filter('FSObjType eq 0')
           .orderBy('Modified', false)
@@ -70,6 +70,7 @@ export const useLibraryFiles = (libraryTitle: string, max: number = 8, siteUrl?:
         const dot = name.lastIndexOf('.');
         return {
           Id: r.Id,
+          UniqueId: r.UniqueId,
           Name: name,
           Url: r.FileRef,
           Extension: dot >= 0 ? name.slice(dot + 1).toLowerCase() : '',

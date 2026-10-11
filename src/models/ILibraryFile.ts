@@ -1,6 +1,8 @@
 /** A file from the configured document library (folders are skipped). */
 export interface ILibraryFile {
   Id: number;
+  /** File GUID — used by the SharePoint embed viewer (`_layouts/15/embed.aspx?UniqueId=`). */
+  UniqueId: string;
   Name: string;
   /** Server-relative URL — open with window.location.origin + Url. */
   Url: string;
@@ -30,6 +32,24 @@ export const fileIcon = (ext: string): string => {
     default: return 'Page';
   }
 };
+
+export type FileKind = 'video' | 'audio' | 'image' | 'pdf' | 'office' | 'text' | 'other';
+
+/** What the document viewer should do with a file. */
+export const fileKind = (ext: string): FileKind => {
+  switch ((ext || '').toLowerCase()) {
+    case 'mp4': case 'm4v': case 'webm': case 'ogv': case 'mov': case 'avi': case 'wmv': case 'mkv': return 'video';
+    case 'mp3': case 'wav': case 'm4a': case 'ogg': case 'aac': return 'audio';
+    case 'png': case 'jpg': case 'jpeg': case 'gif': case 'svg': case 'webp': case 'bmp': return 'image';
+    case 'pdf': return 'pdf';
+    case 'doc': case 'docx': case 'xls': case 'xlsx': case 'csv': case 'ppt': case 'pptx': case 'one': case 'vsdx': case 'vsd': return 'office';
+    case 'txt': case 'md': case 'json': case 'xml': case 'log': return 'text';
+    default: return 'other';
+  }
+};
+
+/** Extensions the browser's own <video> element plays; others go through the SharePoint / Stream player. */
+export const isNativeVideo = (ext: string): boolean => ['mp4', 'm4v', 'webm', 'ogv'].indexOf((ext || '').toLowerCase()) >= 0;
 
 export const formatBytes = (bytes: number): string => {
   if (!bytes || bytes <= 0) { return '0 KB'; }

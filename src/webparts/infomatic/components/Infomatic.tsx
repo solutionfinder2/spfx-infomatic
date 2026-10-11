@@ -11,6 +11,8 @@ import { IListItem } from '../../../models/IListItem';
 import { fileIcon, formatBytes, formatDate, timeAgo } from '../../../models/ILibraryFile';
 import { normalizeSiteUrl } from '../../../services/pnpjsConfig';
 import { SCREENS } from '../screens';
+import { DocumentViewer } from '../../../components/DocumentViewer';
+import type { IUseLibraryFilesResult } from '../../../hooks/useLibraryFiles';
 
 /** Icons cycled for list rows without an "Icon" column — same set as the sample. */
 const RING_ICONS = ['Ringer', 'Work', 'Globe', 'Lightbulb', 'Contact', 'PieDouble', 'Settings', 'Rocket', 'Shield'];
@@ -35,11 +37,27 @@ const sameView = (a: View, b: View): boolean => {
   return true;
 };
 
-/** Body of one of the 8 screens — placeholder until the content is defined. */
-const ScreenContent: React.FC<{ index: number }> = ({ index }) => {
+interface IScreenContentProps {
+  index: number;
+  library: IUseLibraryFilesResult;
+  libraryTitle: string;
+  siteUrl: string;
+  isEditMode: boolean;
+}
+
+/** Body of one of the 8 screens. Screen 2 = document viewer; the others are placeholders until defined. */
+const ScreenContent: React.FC<IScreenContentProps> = ({ index, library, libraryTitle, siteUrl, isEditMode }) => {
   const def = SCREENS[index];
+  const meta = `Screen ${index + 1} of ${SCREENS.length}`;
+  if (def.key === 'documents') {
+    return (
+      <NeuCard title={libraryTitle || def.label} meta={library.files.length > 0 ? `${library.files.length}${library.total > library.files.length ? ` of ${library.total}` : ''} file${library.files.length === 1 ? '' : 's'} · newest first` : meta}>
+        <DocumentViewer files={library.files} siteUrl={siteUrl} libraryTitle={libraryTitle} loading={library.loading} error={library.error} isEditMode={isEditMode} />
+      </NeuCard>
+    );
+  }
   return (
-    <NeuCard title={def.label} meta={`Screen ${index + 1} of ${SCREENS.length}`}>
+    <NeuCard title={def.label} meta={meta}>
       <NeuNotice>Content for <strong>{def.label}</strong> will be added here.</NeuNotice>
     </NeuCard>
   );
@@ -55,6 +73,8 @@ const InfomaticBody: React.FC<IInfomaticProps> = (props) => {
   const max = Math.max(1, Math.min(props.maxItems || 8, 50));
   const list = useListItems(props.listTitle, max, props.dataSiteUrl);
   const library = useLibraryFiles(props.libraryTitle, max, props.dataSiteUrl);
+  // the document viewer (Documents screen) browses the whole library, not just the newest `max`
+  const viewerLibrary = useLibraryFiles(props.libraryTitle, 100, props.dataSiteUrl);
   const loading = list.loading || library.loading;
   // links (item forms, list / library pages) must point at the site the data comes from
   const siteUrl = normalizeSiteUrl(props.dataSiteUrl) || props.siteUrl;
@@ -131,6 +151,7 @@ const InfomaticBody: React.FC<IInfomaticProps> = (props) => {
   const refresh = (): void => {
     list.refresh().catch(() => undefined);
     library.refresh().catch(() => undefined);
+    viewerLibrary.refresh().catch(() => undefined);
   };
 
   const nothingConfigured = !props.listTitle && !props.libraryTitle;
@@ -332,7 +353,7 @@ const InfomaticBody: React.FC<IInfomaticProps> = (props) => {
 
   const screenView = view.kind === 'screen' && (
     <div className={styles.itemView}>
-      <ScreenContent index={view.index} />
+      <ScreenContent index={view.index} library={viewerLibrary} libraryTitle={props.libraryTitle} siteUrl={siteUrl} isEditMode={props.isEditMode} />
       <div className={styles.pager}>
         <NeuButton icon="ChevronLeft" text={view.index > 0 ? SCREENS[view.index - 1].label : 'Previous'} disabled={view.index <= 0} onClick={() => go({ kind: 'screen', index: view.index - 1 })} />
         <NeuButton icon="Home" text="Landing page" onClick={goHome} />

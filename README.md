@@ -8,7 +8,7 @@ bottom-right shadow, circular icon discs, gradient accent text.
 
 | | |
 |---|---|
-| Solution | `spfx-infomatic` · 1.2.0.0 |
+| Solution | `spfx-infomatic` · 1.3.0.0 |
 | Web part | **Infomatic** (Advanced group) — hosts: SharePoint page, full page, Teams tab, Teams personal app |
 | Repo | https://github.com/solutionfinder2/spfx-infomatic |
 
@@ -20,6 +20,7 @@ bottom-right shadow, circular icon discs, gradient accent text.
 | Full screen (1.1.0) | Same behaviour as the Biography web part: the web part is pinned under the Microsoft 365 / site header (measured from `#SuiteNavWrapper`, `#spSiteHeader`, …), the page is scrolled to the top, **Esc** or the button exits. Can be hidden per web part. |
 | Landing page (1.1.0) | The infographic ring **is the navigation**: **8 icon buttons around the full circle** (clockwise from the top), each opening one of the **8 screens** (1.2.0, defined in `src/webparts/infomatic/screens.ts`; content to come). The **centre disc is a Home button** that always returns to the landing page. The KPI discs *List items* and *Files & folders* open the list and the files view. The browser **Back** button walks the views (`history.pushState`). |
 | Screens (1.2.0) | Every view but the landing page uses a two-column shell: a **compact ring on the left** (same 8 buttons, current one highlighted, centre = Home, sticky while scrolling) and the **content on the right**. The 8 screens show a placeholder card and Previous / Landing page / Next buttons until their content is defined. Below 860 px the columns stack. |
+| Documents screen (1.3.0) | Screen 2 is a **document viewer** for the configured library (newest 100 files, independent of *Items per source*): viewer surface, current-file row (**Open** in a new tab, **Download**) and a horizontal **file strip** to switch files. **Video** (`mp4` / `webm` / `m4v` / `ogv`) plays in the browser's own player; `mov` / `avi` / `wmv` / `mkv` go through SharePoint's Stream player; audio → `<audio>`; images → `<img>`; PDF / Office / everything else → SharePoint's embed page (`/_layouts/15/embed.aspx?UniqueId=`). |
 | Item page (1.1.0) | Reached from a row of the list view. Hero (icon disc, category caption, title, author · updated), **Open** button when the row has a `Url` hyperlink column, **Open item** (SharePoint form), *Summary* (`Description`), *Content* (rich text column `Content`, rendered as HTML), Previous / Landing page / Next. |
 | Theme switcher | Light ↔ dark. The choice is stored per browser (`localStorage` key `infomatic.theme`) and shared by every Infomatic web part; without a choice the web part follows **Default theme** (site / section theme, light or dark). A storage event keeps several web parts on one page in sync. Switcher off = the default always applies. |
 | KPI discs | List items (ItemCount), files & folders, size of the latest files, last update ("3 hours ago"). |
@@ -80,6 +81,7 @@ Quality gates: `npx tsc --noEmit -p tsconfig.json` and `npx eslint "src/**/*.{ts
 
 | Version | Highlights |
 | --- | --- |
+| 1.3.0 | **Documents screen** (screen 2): `DocumentViewer` — native `<video>` / `<audio>` / `<img>` for media, SharePoint `embed.aspx?UniqueId=` for PDF / Office / other, Stream player for non-browser video formats; file strip, Open / Download; library hook now returns `UniqueId`; viewer reads up to 100 files |
 | 1.2.0 | Ring buttons open **8 dedicated screens** (`screens.ts`, placeholders for now) instead of list items; **compact ring on the left of every screen** (`NeuRing compact`) with the content on the right; screen Previous / Next; item page stays, reached from the list rows |
 | 1.1.0 | **Full screen** (Biography behaviour: pinned under the suite / site header, Esc exits, property *Full screen button*); **landing page = ring navigation** with up to **8 buttons around the full circle** (`NeuRing layout="circle"`), **centre disc = Home**; item page (hero, `Url` Open button, `Description`, rich-text `Content`, Previous / Next), list and files views opened from the KPI discs, Home disc + breadcrumb in the header, browser Back support; new optional list columns `Url` and `Content`; `showRing` off = 1.0 cards layout |
 | 1.0.1 | Fix: file size is read from `File/Length` (`File_x0020_Size` cannot be `$select`ed and broke every library); **Site URL** setting to read the list / library from another site (`getWeb()` / `normalizeSiteUrl()`); readable "not found on <site>" errors for editors; links follow the data site |

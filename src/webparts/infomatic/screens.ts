@@ -15,7 +15,7 @@ export interface IScreenDef {
 
 export const SCREENS: IScreenDef[] = [
   { key: 'screen-1', icon: 'Ringer',    label: 'Screen 1', caption: '01' },
-  { key: 'screen-2', icon: 'Work',      label: 'Screen 2', caption: '02' },
+  { key: 'documents', icon: 'DocumentSet', label: 'Documents', caption: '02' },
   { key: 'screen-3', icon: 'Globe',     label: 'Screen 3', caption: '03' },
   { key: 'screen-4', icon: 'Lightbulb', label: 'Screen 4', caption: '04' },
   { key: 'screen-5', icon: 'Contact',   label: 'Screen 5', caption: '05' },
