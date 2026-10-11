@@ -22,6 +22,70 @@
   margin-right: auto;
 }
 
+/* ---------- compact side-navigation version (1.2.0) ---------- */
+
+.compact {
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+.ringCompact {
+  min-height: 0;
+  max-width: none;
+  /* room for the labels above the top node and below the bottom one */
+  margin: 40px 0 44px;
+
+  .text {
+    width: 84px;
+    gap: 0;
+  }
+
+  .top {
+    margin-bottom: 4px;
+  }
+
+  .bottom {
+    margin-top: 4px;
+  }
+
+  .label {
+    font-size: 10.5px;
+    line-height: 1.2;
+    font-weight: 600;
+  }
+
+  .beadBig {
+    width: 9px;
+    height: 9px;
+  }
+
+  .beadSmall {
+    width: 5px;
+    height: 5px;
+  }
+
+  .centerText {
+    padding: 0 8px;
+  }
+}
+
+.centerIconCompact {
+  font-size: 18px;
+  color: var(--neu-accent-1);
+}
+
+.centerTitleCompact {
+  margin-top: 2px;
+  font-size: 10.5px;
+  line-height: 1.15;
+  font-weight: 700;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
 .center {
   position: absolute;
   transform: translate(-50%, -50%);
@@ -211,7 +275,7 @@
 }
 
 @media screen and (max-width: 700px) {
-  .ring {
+  .ring:not(.ringCompact) {
     display: none;
   }
 

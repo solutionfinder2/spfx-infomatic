@@ -10,19 +10,40 @@ import { useLibraryFiles } from '../../../hooks/useLibraryFiles';
 import { IListItem } from '../../../models/IListItem';
 import { fileIcon, formatBytes, formatDate, timeAgo } from '../../../models/ILibraryFile';
 import { normalizeSiteUrl } from '../../../services/pnpjsConfig';
+import { SCREENS } from '../screens';
 
 /** Icons cycled for list rows without an "Icon" column — same set as the sample. */
 const RING_ICONS = ['Ringer', 'Work', 'Globe', 'Lightbulb', 'Contact', 'PieDouble', 'Settings', 'Rocket', 'Shield'];
 
-const pad = (n: number): string => String(n).padStart(2, '0');
-
 /**
- * Screens of the app (1.1.0). The landing page is the ring; every other view
- * has a home disc in the header and the browser Back button returns as well.
+ * Views of the app. The landing page is the ring; its 8 buttons open the 8
+ * screens (1.2.0, content to come). List / files views come from the KPI
+ * discs, the item page from a list row. Every non-landing view shows the
+ * compact ring on the left and the browser Back button walks the history.
  */
-type View = { kind: 'home' } | { kind: 'list' } | { kind: 'files' } | { kind: 'item'; id: number };
+type View =
+  | { kind: 'home' }
+  | { kind: 'screen'; index: number }
+  | { kind: 'list' }
+  | { kind: 'files' }
+  | { kind: 'item'; id: number };
 const HOME: View = { kind: 'home' };
-const sameView = (a: View, b: View): boolean => a.kind === b.kind && (a.kind !== 'item' || b.kind !== 'item' || a.id === b.id);
+const sameView = (a: View, b: View): boolean => {
+  if (a.kind !== b.kind) { return false; }
+  if (a.kind === 'item' && b.kind === 'item') { return a.id === b.id; }
+  if (a.kind === 'screen' && b.kind === 'screen') { return a.index === b.index; }
+  return true;
+};
+
+/** Body of one of the 8 screens — placeholder until the content is defined. */
+const ScreenContent: React.FC<{ index: number }> = ({ index }) => {
+  const def = SCREENS[index];
+  return (
+    <NeuCard title={def.label} meta={`Screen ${index + 1} of ${SCREENS.length}`}>
+      <NeuNotice>Content for <strong>{def.label}</strong> will be added here.</NeuNotice>
+    </NeuCard>
+  );
+};
 
 /**
  * FEATURE (asks: "display data from list and library", "look and feel like the
@@ -90,29 +111,16 @@ const InfomaticBody: React.FC<IInfomaticProps> = (props) => {
   /* ---------------- derived data ---------------- */
   const itemHref = (it: IListItem): string => `${siteUrl}/Lists/${encodeURIComponent(props.listTitle)}/DispForm.aspx?ID=${it.Id}`;
   const iconOf = (it: IListItem, i: number): string => it.Icon || RING_ICONS[i % RING_ICONS.length];
-  const usingList = !!props.listTitle && list.items.length > 0;
 
-  const ringNodes: IRingNode[] = React.useMemo(() => {
-    if (usingList) {
-      return list.items.slice(0, 8).map((it, i) => ({
-        key: it.Id,
-        icon: iconOf(it, i),
-        caption: it.Category || pad(i + 1),
-        label: it.Title,
-        description: it.Description,
-        active: view.kind === 'item' && view.id === it.Id,
-        onClick: () => go({ kind: 'item', id: it.Id })
-      }));
-    }
-    return library.files.slice(0, 8).map((f, i) => ({
-      key: f.Id,
-      icon: fileIcon(f.Extension),
-      caption: f.Extension ? f.Extension.toUpperCase() : pad(i + 1),
-      label: f.Name,
-      description: `${formatBytes(f.Size)} · ${timeAgo(f.Modified)}`,
-      href: `${origin}${f.Url}?web=1`
-    }));
-  }, [usingList, list.items, library.files, origin, view, go]);
+  // the 8 navigation buttons around the ring → the 8 screens
+  const ringNodes: IRingNode[] = React.useMemo(() => SCREENS.map((s, i) => ({
+    key: s.key,
+    icon: s.icon,
+    caption: s.caption,
+    label: s.label,
+    active: view.kind === 'screen' && view.index === i,
+    onClick: () => go({ kind: 'screen', index: i })
+  })), [view, go]);
 
   const lastUpdate = React.useMemo(() => {
     const dates = list.items.map(i => i.Modified).concat(library.files.map(f => f.Modified)).filter(Boolean) as string[];
@@ -153,7 +161,10 @@ const InfomaticBody: React.FC<IInfomaticProps> = (props) => {
               {homeDisc}
               <Icon iconName="ChevronRight" className={styles.crumbSep} />
               <span className={styles.crumbCurrent}>
-                {view.kind === 'list' ? props.listTitle : view.kind === 'files' ? props.libraryTitle : current ? current.Title : 'Item'}
+                {view.kind === 'screen' ? SCREENS[view.index].label
+                  : view.kind === 'list' ? props.listTitle
+                    : view.kind === 'files' ? props.libraryTitle
+                      : current ? current.Title : 'Item'}
               </span>
             </nav>
           )}
@@ -259,12 +270,12 @@ const InfomaticBody: React.FC<IInfomaticProps> = (props) => {
 
   const landing = (
     <>
-      {props.showRing && ringNodes.length > 0 && (
+      {props.showRing && (
         <div className={styles.section}>
           <NeuRing
             layout="circle"
             title={title}
-            subtitle={usingList ? props.listTitle : props.libraryTitle}
+            subtitle={props.subtitle}
             nodes={ringNodes}
             max={8}
             onCenterClick={goHome}
@@ -273,7 +284,7 @@ const InfomaticBody: React.FC<IInfomaticProps> = (props) => {
           />
         </div>
       )}
-      {loading && ringNodes.length === 0 && <Spinner size={SpinnerSize.large} label="Loading…" />}
+      {loading && !nothingConfigured && list.items.length === 0 && library.files.length === 0 && <Spinner size={SpinnerSize.large} label="Loading…" />}
       {stats}
       {!props.showRing && (
         <div className={styles.columns}>
@@ -319,14 +330,44 @@ const InfomaticBody: React.FC<IInfomaticProps> = (props) => {
     </div>
   );
 
+  const screenView = view.kind === 'screen' && (
+    <div className={styles.itemView}>
+      <ScreenContent index={view.index} />
+      <div className={styles.pager}>
+        <NeuButton icon="ChevronLeft" text={view.index > 0 ? SCREENS[view.index - 1].label : 'Previous'} disabled={view.index <= 0} onClick={() => go({ kind: 'screen', index: view.index - 1 })} />
+        <NeuButton icon="Home" text="Landing page" onClick={goHome} />
+        <NeuButton icon="ChevronRight" text={view.index < SCREENS.length - 1 ? SCREENS[view.index + 1].label : 'Next'} disabled={view.index >= SCREENS.length - 1} onClick={() => go({ kind: 'screen', index: view.index + 1 })} />
+      </div>
+    </div>
+  );
+
+  // every screen but the landing page: compact ring on the left, content on the right
+  const shell = (content: React.ReactNode): JSX.Element => (
+    <div className={styles.shell}>
+      <aside className={styles.shellNav} aria-label="Navigation">
+        <NeuRing
+          compact
+          title={title}
+          nodes={ringNodes}
+          max={8}
+          onCenterClick={goHome}
+          centerTitle={`Back to ${title}`}
+          centerIcon="Home"
+        />
+      </aside>
+      <div className={styles.shellContent}>{content}</div>
+    </div>
+  );
+
   return (
     <NeuRoot className={isFullScreen ? neu.fullScreenMode : undefined} style={isFullScreen ? { top: fullScreenTop } : undefined}>
       {header}
       {notices}
       {view.kind === 'home' && landing}
-      {view.kind === 'item' && itemView}
-      {view.kind === 'list' && <div className={styles.section}>{listCard}</div>}
-      {view.kind === 'files' && <div className={styles.section}>{filesCard}</div>}
+      {view.kind === 'screen' && shell(screenView)}
+      {view.kind === 'item' && shell(itemView)}
+      {view.kind === 'list' && shell(listCard)}
+      {view.kind === 'files' && shell(filesCard)}
     </NeuRoot>
   );
 };

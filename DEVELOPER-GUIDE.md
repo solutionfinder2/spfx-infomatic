@@ -74,14 +74,23 @@ Document library ─┘  getSP(context)     └─ useLibraryFiles┘        │
     at `180 + i·180/(n−1)`° (left → bottom → right).
   - `circle` (1.1 landing page): box 100 × 92, centre (50, 50), node radius 34, bead radius 23, up
     to 8 nodes at `90 − i·360/n`° (clockwise from the top).
+  - `compact` (1.2 side navigation): box 100 × 100, centre (50, 50), node radius 37, bead radius 25,
+    88 px centre disc (Home icon + title), 44 px node discs, labels only above / below (no horizontal
+    overflow, so the column stays 320 px), never collapses to the list fallback.
   - Label side from the angle: `cos ≥ 0.45` → right, `cos ≤ −0.45` → left, else above (`sin > 0`)
     or below. `active` nodes get the pressed disc + accent label. `onCenterClick` turns the centre
     disc into a `<button>` (the Home link) and adds a Home entry to the `<ol>` fallback (< 700 px).
-- **Views** (1.1.0, `Infomatic.tsx`): `type View = home | list | files | item(id)`. `go(view)` pushes
-  `{ infomatic: view }` with `history.pushState`, a `popstate` listener restores it, so the browser
-  Back button works and a reload lands on the last view. The landing page renders the circle ring
-  (nodes → `go(item)`) and KPI discs (→ `go(list)` / `go(files)`); other views show the Home disc +
+- **Views** (`Infomatic.tsx`): `type View = home | screen(index) | list | files | item(id)`. `go(view)`
+  pushes `{ infomatic: view }` with `history.pushState`, a `popstate` listener restores it, so the
+  browser Back button works and a reload lands on the last view. The landing page renders the circle
+  ring (nodes → `go(screen i)`) and KPI discs (→ `go(list)` / `go(files)`); list rows → `go(item)`.
+  Every other view is wrapped by `shell()` — `.shell` grid `320px minmax(0,1fr)`: compact ring in a
+  sticky `<aside>` on the left, content on the right (stacks < 860 px) — and shows the Home disc +
   breadcrumb in the header. `showRing=false` renders the 1.0 single page instead.
+- **Screens** (1.2.0): `src/webparts/infomatic/screens.ts` exports `SCREENS: IScreenDef[]` (key,
+  icon, label, caption) in ring order (clockwise from the top). `ScreenContent` in `Infomatic.tsx`
+  renders the body for `SCREENS[index]` — currently a placeholder card; this is where the per-screen
+  content goes.
 - **Full screen** (1.1.0): copied from the Biography web part — `isFullScreen` toggles
   `neu.fullScreenMode` (fixed, inset 0, z-index 100000) on `NeuRoot`, `fullScreenTop` is the max
   `bottom` of `#SuiteNavWrapper, #SuiteNavPlaceholder, #SuiteNavPlaceHolder, #O365_NavHeader,

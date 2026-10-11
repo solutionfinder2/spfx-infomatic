@@ -8,7 +8,7 @@ bottom-right shadow, circular icon discs, gradient accent text.
 
 | | |
 |---|---|
-| Solution | `spfx-infomatic` · 1.1.0.0 |
+| Solution | `spfx-infomatic` · 1.2.0.0 |
 | Web part | **Infomatic** (Advanced group) — hosts: SharePoint page, full page, Teams tab, Teams personal app |
 | Repo | https://github.com/solutionfinder2/spfx-infomatic |
 
@@ -18,8 +18,9 @@ bottom-right shadow, circular icon discs, gradient accent text.
 | --- | --- |
 | Header | Gradient title + subtitle, **Refresh**, the **theme switcher** (sun / moon pill) and the **full screen** button. On every page but the landing page the title is replaced by a **Home disc + breadcrumb** that returns to the landing page. |
 | Full screen (1.1.0) | Same behaviour as the Biography web part: the web part is pinned under the Microsoft 365 / site header (measured from `#SuiteNavWrapper`, `#spSiteHeader`, …), the page is scrolled to the top, **Esc** or the button exits. Can be hidden per web part. |
-| Landing page (1.1.0) | The infographic ring **is the navigation**: up to **8 icon buttons around the full circle** (clockwise from the top), each opening the item page of a list row. The **centre disc is a Home button** that always returns to the landing page. The KPI discs *List items* and *Files & folders* open the list and the files view. The browser **Back** button walks the views (`history.pushState`). |
-| Item page (1.1.0) | Hero (icon disc, category caption, title, author · updated), **Open** button when the row has a `Url` hyperlink column, **Open item** (SharePoint form), *Summary* (`Description`), *Content* (rich text column `Content`, rendered as HTML), Previous / Landing page / Next. |
+| Landing page (1.1.0) | The infographic ring **is the navigation**: **8 icon buttons around the full circle** (clockwise from the top), each opening one of the **8 screens** (1.2.0, defined in `src/webparts/infomatic/screens.ts`; content to come). The **centre disc is a Home button** that always returns to the landing page. The KPI discs *List items* and *Files & folders* open the list and the files view. The browser **Back** button walks the views (`history.pushState`). |
+| Screens (1.2.0) | Every view but the landing page uses a two-column shell: a **compact ring on the left** (same 8 buttons, current one highlighted, centre = Home, sticky while scrolling) and the **content on the right**. The 8 screens show a placeholder card and Previous / Landing page / Next buttons until their content is defined. Below 860 px the columns stack. |
+| Item page (1.1.0) | Reached from a row of the list view. Hero (icon disc, category caption, title, author · updated), **Open** button when the row has a `Url` hyperlink column, **Open item** (SharePoint form), *Summary* (`Description`), *Content* (rich text column `Content`, rendered as HTML), Previous / Landing page / Next. |
 | Theme switcher | Light ↔ dark. The choice is stored per browser (`localStorage` key `infomatic.theme`) and shared by every Infomatic web part; without a choice the web part follows **Default theme** (site / section theme, light or dark). A storage event keeps several web parts on one page in sync. Switcher off = the default always applies. |
 | KPI discs | List items (ItemCount), files & folders, size of the latest files, last update ("3 hours ago"). |
 | Infographic ring | The sample's look: a central disc with the title, icon circles with beads between them, captions / labels / descriptions placed left, right, above or below depending on the angle. `layout="circle"` (landing page, 8 nodes all around) or `layout="arc"` (the original 7-node half circle). Nodes are the list rows (icon from an `Icon` column — any Fluent UI icon name — else a cycling set; caption from `Category` else "01"; description from `Description`). Without a list the ring shows the newest files. Collapses to a vertical list under 700 px (with a Home entry). |
@@ -79,6 +80,7 @@ Quality gates: `npx tsc --noEmit -p tsconfig.json` and `npx eslint "src/**/*.{ts
 
 | Version | Highlights |
 | --- | --- |
+| 1.2.0 | Ring buttons open **8 dedicated screens** (`screens.ts`, placeholders for now) instead of list items; **compact ring on the left of every screen** (`NeuRing compact`) with the content on the right; screen Previous / Next; item page stays, reached from the list rows |
 | 1.1.0 | **Full screen** (Biography behaviour: pinned under the suite / site header, Esc exits, property *Full screen button*); **landing page = ring navigation** with up to **8 buttons around the full circle** (`NeuRing layout="circle"`), **centre disc = Home**; item page (hero, `Url` Open button, `Description`, rich-text `Content`, Previous / Next), list and files views opened from the KPI discs, Home disc + breadcrumb in the header, browser Back support; new optional list columns `Url` and `Content`; `showRing` off = 1.0 cards layout |
 | 1.0.1 | Fix: file size is read from `File/Length` (`File_x0020_Size` cannot be `$select`ed and broke every library); **Site URL** setting to read the list / library from another site (`getWeb()` / `normalizeSiteUrl()`); readable "not found on <site>" errors for editors; links follow the data site |
 | 1.0.0 | Neumorphic design system with light / dark switcher (persisted), list + document-library hooks, KPI discs, infographic ring, list rows, file tiles, property pane (data sources, appearance), sample-list script |
