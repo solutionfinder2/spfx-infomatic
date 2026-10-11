@@ -98,6 +98,30 @@ Document library ─┘  getSP(context)     └─ useLibraryFiles┘        │
   `useContentSections`), mount when the screen opens and reload when `reloadToken` changes (bumped
   by the header Refresh). To add a new block type: extend `ScreenContentDef`, write a `XxxBlock`
   that calls its hook and renders a `NeuCard`, add a `case` to the switch.
+- **Country explorer** (1.6.0, block type `countries`):
+  - `hooks/useCountryList(listTitle, siteUrl)` is **schema-driven**: it reads the visible, writable
+    columns (`fields.select('InternalName','Title','TypeAsString','Hidden','ReadOnlyField','RichText')`),
+    skips `UNSUPPORTED_FIELD_TYPES`, builds `$select` / `$expand` per type (Lookup/User → `X/Id`,
+    `X/Title` (+ `X/EMail`), capped at 11 lookups to stay under SharePoint's threshold), and returns
+    `rows: ICountryRow[]` (Id, Title, Alpha2, Numeric, Continent, FlagUrl, Latitude, Longitude +
+    `values` = the raw row) and `fields: IFieldMeta[]`. Results are cached per `site|title` in a
+    module-level promise; Refresh bypasses it.
+  - `services/worldShapes.ts` (ported from spfx-vector-map): `WORLD_FEATURES` decoded once from
+    `world-atlas/countries-110m.json`, `featureByNumeric()` (ids normalised — "004" ≡ "4"),
+    `continentOfGeo()` (centroid → `utils/getContinent`), `fitCountry()` (centre + scale framing one
+    shape in the 800×400 geoEqualEarth map), `CONTINENT_VIEWS`, `CONTINENT_COLORS`, `shadeFor()`
+    mixing fill / hover / selected / tint for the neumorphic light and dark surfaces.
+  - `components/CountryMap.tsx`: `ComposableMap` + `ZoomableGroup` + `Geographies`; framing = country
+    (`fitCountry`) → continent (`CONTINENT_VIEWS`) → world. Shape continent = the list row's
+    `Continent` when the shape has a row, else the geometric classification. Out-of-focus continents
+    are muted + 55 % opacity; the wrapper background is the continent tint. `onSelectShape(numeric)`.
+  - `components/CountryExplorer.tsx`: state `continent` + `countryId`; `pickContinent` clears a
+    country outside it, `pickCountry` sets the continent from the row; two native `<select>`s styled
+    as pressed pills (Fluent Dropdown would break the dark surface); legend chips; facts split into
+    `scalars` (grid), `notes` (Note columns that are rich text / HTML / > 120 chars → one card each,
+    SVG text skipped) and `images` (Thumbnail columns via `imageUrl()`); `COUNTRY_HERO_COLUMNS` go to
+    the hero, `COUNTRY_SKIP_COLUMNS` are hidden. `Value` formats by `TypeAsString`.
+  - `src/declarations.d.ts` declares `*.json` so the TopoJSON import type-checks.
 - **Content accordion** (1.4.0): `hooks/useContentSections(listTitle, { contentField, categoryField,
   siteUrl, max, useSchedule })` is the Showme Accordion loader on the Infomatic plumbing
   (`getWeb(site)`, fields probe, select only existing columns, Display / schedule filter, SortOrder

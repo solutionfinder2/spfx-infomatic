@@ -34,6 +34,7 @@
       "accordionLayout": "accordion",
       "documentLayout": "strip",
       "singleDocumentName": "",
+      "countriesListTitle": "Countries",
       "maxItems": 8,
       "defaultTheme": "site",
       "showThemeToggle": true,

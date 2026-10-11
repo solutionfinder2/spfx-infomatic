@@ -8,7 +8,7 @@ bottom-right shadow, circular icon discs, gradient accent text.
 
 | | |
 |---|---|
-| Solution | `spfx-infomatic` · 1.5.0.0 |
+| Solution | `spfx-infomatic` · 1.6.0.0 |
 | Web part | **Infomatic** (Advanced group) — hosts: SharePoint page, full page, Teams tab, Teams personal app |
 | Repo | https://github.com/solutionfinder2/spfx-infomatic |
 
@@ -23,7 +23,8 @@ bottom-right shadow, circular icon discs, gradient accent text.
 | Documents screen (1.3.0) | Screen 2 is a **document viewer** for the configured library (newest 100 files, independent of *Items per source*): viewer surface, current-file row (**Open** in a new tab, **Download**) and a horizontal **file strip** to switch files. **Video** (`mp4` / `webm` / `m4v` / `ogv`) plays in the browser's own player; `mov` / `avi` / `wmv` / `mkv` go through SharePoint's Stream player; audio → `<audio>`; images → `<img>`; PDF / Office / everything else → SharePoint's embed page (`/_layouts/15/embed.aspx?UniqueId=`). |
 | Sections screen (1.4.0) | Screen 3 is the **content accordion** — the Showme Accordion rebuilt in the Infomatic style: search (matches title, category and the visible text of the rich content), **category chips** filter, Expand all / Collapse all, sections grouped by category, raised section bars with a disc chevron, pressed rich-text panels with a smooth open / close. Same list schema as `spfx-content-accordion` (`Title`, rich text `Content`, optional `Category`, `SortOrder`, `Expanded`, `Display`, `StartDate` / `EndDate`); missing optional columns switch their feature off; editors see schema hints, viewers never do. |
 | Reusable screen blocks (1.4.0) | Every screen declares its content in `src/webparts/infomatic/screens.ts`: `placeholder`, `documents` (document viewer) or `accordion` (content accordion). Any block can be put on any screen, optionally pointed at a different list / library than the property pane settings (`{ type: 'accordion', listTitle: 'Policies' }`). |
-| Screen map (1.5.0) | 01 placeholder · **02 Documents 1** (viewer) · **03 Documents 2** (viewer) · **04 Sections 1** (accordion) · **05 Sections 2** (accordion) · **06 Document** (single-document viewer: no file picker, shows the file named in *Single document*, else the newest) · **07 Documents 3** (viewer) · 08 placeholder. Labels / icons are placeholders until the final names are known. |
+| Countries screen (1.6.0) | Screen 1 is the **country explorer** over the World Map (Vector) `Countries` list: **Continent → Country cascading dropdowns** (counts per continent, country list filtered by the chosen continent; picking a country sets its continent), a clickable **continent legend**, and the **vector map** (react-simple-maps over bundled world-atlas, no tile servers) that shows the world, zooms to the chosen continent (other continents muted, ocean tinted in the continent colour) or frames the chosen country; clicking a shape selects that country. Below: hero (flag, continent · region · sub-region, name, official / native name, capital, codes, link buttons for every URL column, Open item), **Facts** grid, image columns, and one card per rich-text column — all **schema-driven**: every visible column of the list with a value is shown, formatted by type (lookups, people, dates, yes/no, links, multi-choice). Without a country: a tile grid of the continent's countries. |
+| Screen map (1.5.0) | **01 Countries** (1.6.0) · **02 Documents 1** (viewer) · **03 Documents 2** (viewer) · **04 Sections 1** (accordion) · **05 Sections 2** (accordion) · **06 Document** (single-document viewer: no file picker, shows the file named in *Single document*, else the newest) · **07 Documents 3** (viewer) · 08 placeholder. Labels / icons are placeholders until the final names are known. |
 | Item page (1.1.0) | Reached from a row of the list view. Hero (icon disc, category caption, title, author · updated), **Open** button when the row has a `Url` hyperlink column, **Open item** (SharePoint form), *Summary* (`Description`), *Content* (rich text column `Content`, rendered as HTML), Previous / Landing page / Next. |
 | Theme switcher | Light ↔ dark. The choice is stored per browser (`localStorage` key `infomatic.theme`) and shared by every Infomatic web part; without a choice the web part follows **Default theme** (site / section theme, light or dark). A storage event keeps several web parts on one page in sync. Switcher off = the default always applies. |
 | KPI discs | List items (ItemCount), files & folders, size of the latest files, last update ("3 hours ago"). |
@@ -40,6 +41,7 @@ bottom-right shadow, circular icon discs, gradient accent text.
 | Data sources | Site URL (1.0.1) | empty | Site that holds the list and library; empty = the current site. On a subsite, lists of the parent site need the parent URL. Pasted page / list URLs are trimmed to the site |
 | | List title | empty | Rows for the ring and the list card |
 | | Document library title | `Documents` | Newest files for the tiles and the Documents screen |
+| | Countries list title (1.6.0) | `Countries` | World Map (Vector) reference list for the Countries screen (needs `Title` + `Continent`; `Numeric` links rows to map shapes) |
 | | Single document (1.5.0) | empty | File name (e.g. `Handbook.pdf`) shown by the single-document screen; must be in the library; empty = newest file |
 | | Accordion list title (1.4.0) | `ContentSections` | Rich text sections for the Sections screens |
 | | Accordion content column (1.4.0) | `Content` | Internal name of the rich text column |
@@ -90,6 +92,7 @@ Quality gates: `npx tsc --noEmit -p tsconfig.json` and `npx eslint "src/**/*.{ts
 
 | Version | Highlights |
 | --- | --- |
+| 1.6.0 | **Countries screen** (screen 1): continent → country cascading dropdowns, continent legend, vector map (world / continent / country framing, click to select), schema-driven facts (`useCountryList` reads the list schema and shows every visible column by type); new block type `countries`; property *Countries list title*; packages `react-simple-maps`, `topojson-client`, `world-atlas` |
 | 1.5.0 | New screen map (02 / 03 / 07 document viewer, 04 / 05 accordion, 06 **single-document viewer**); `DocumentViewer single` + `fileName`; property *Single document*; `documents` screen options `single` / `fileName` |
 | 1.4.2 | Document viewer **Layout** setting (Styling — document viewer): file strip / file list left / file list right / gallery grid, plus a per-screen `layout` override |
 | 1.4.1 | Accordion **Layout** setting (Styling — accordion): Accordion / Sidebar menu left / Sidebar menu right / Tabs by category, plus a per-screen `layout` override |

@@ -35,6 +35,8 @@ export interface IInfomaticWebPartProps {
   documentLayout: string;
   /** File name for the single-document screen; empty = newest file. */
   singleDocumentName: string;
+  /** Countries reference list (same schema as the World Map (Vector) solution). */
+  countriesListTitle: string;
   maxItems: number;
   /** 'site' = follow the SharePoint section theme; 'light' | 'dark' = force. */
   defaultTheme: string;
@@ -70,6 +72,7 @@ export default class InfomaticWebPart extends BaseClientSideWebPart<IInfomaticWe
         documentLayout: (['strip', 'sidebarLeft', 'sidebarRight', 'grid'].indexOf(this.properties.documentLayout) >= 0
           ? this.properties.documentLayout : 'strip') as DocumentViewerLayout,
         singleDocumentName: this.properties.singleDocumentName || '',
+        countriesListTitle: this.properties.countriesListTitle,
         maxItems: this.properties.maxItems || 8,
         defaultTheme,
         showThemeToggle: this.properties.showThemeToggle !== false,
@@ -136,6 +139,11 @@ export default class InfomaticWebPart extends BaseClientSideWebPart<IInfomaticWe
                   label: 'Document library title',
                   description: 'Newest files are shown as tiles. Empty = no files section.',
                   placeholder: 'Documents'
+                }),
+                PropertyPaneTextField('countriesListTitle', {
+                  label: 'Countries list title',
+                  description: 'Reference list of the World Map (Vector) solution (Title, Continent, Numeric, Flag, …) for the "Countries" screen. Any list with Title + Continent works; every visible column is shown as a fact.',
+                  placeholder: 'Countries'
                 }),
                 PropertyPaneTextField('singleDocumentName', {
                   label: 'Single document',

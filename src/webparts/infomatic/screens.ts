@@ -5,6 +5,7 @@
  * Each screen declares WHAT it shows through `content` (1.4.0). The content types
  * are reusable building blocks rendered by `ScreenContent.tsx`:
  *   placeholder — "content coming" card
+ *   countries   — CountryExplorer over the Countries list (continent → country, vector map, facts)
  *   documents   — DocumentViewer over a library (defaults to the web part's library setting)
  *   accordion   — ContentAccordion over a list (defaults to the web part's accordion list setting)
  * Any screen can use any type; set `listTitle` / `libraryTitle` here to point a screen at
@@ -12,6 +13,12 @@
  */
 export type ScreenContentDef =
   | { type: 'placeholder' }
+  | {
+    /** Country explorer: continent → country cascade, vector map, facts from the list. */
+    type: 'countries';
+    /** Defaults to the property pane "Countries list title". */
+    listTitle?: string;
+  }
   | {
     type: 'documents';
     libraryTitle?: string;
@@ -47,7 +54,7 @@ export interface IScreenDef {
 }
 
 export const SCREENS: IScreenDef[] = [
-  { key: 'screen-1', icon: 'Ringer', label: 'Screen 1', caption: '01', content: { type: 'placeholder' } },
+  { key: 'countries', icon: 'World', label: 'Countries', caption: '01', content: { type: 'countries' } },
   { key: 'documents-1', icon: 'DocumentSet', label: 'Documents 1', caption: '02', content: { type: 'documents' } },
   { key: 'documents-2', icon: 'FabricFolder', label: 'Documents 2', caption: '03', content: { type: 'documents' } },
   { key: 'sections-1', icon: 'TextDocument', label: 'Sections 1', caption: '04', content: { type: 'accordion' } },

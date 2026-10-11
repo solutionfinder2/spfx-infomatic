@@ -9,6 +9,8 @@ import { DocumentViewer, DocumentViewerLayout } from '../../../components/Docume
 import { AccordionLayout, ContentAccordion } from '../../../components/ContentAccordion';
 import { useLibraryFiles } from '../../../hooks/useLibraryFiles';
 import { useContentSections } from '../../../hooks/useContentSections';
+import { useCountryList } from '../../../hooks/useCountryList';
+import { CountryExplorer } from '../../../components/CountryExplorer';
 import { IScreenDef, SCREENS } from '../screens';
 
 /** Web part settings the content blocks fall back to. */
@@ -25,6 +27,7 @@ export interface IScreenDataDefaults {
   documentLayout: DocumentViewerLayout;
   /** File name for single-document screens (property pane "Single document"). */
   singleDocumentName: string;
+  countriesListTitle: string;
   isEditMode: boolean;
   /** Bumped by the header Refresh button; blocks reload when it changes. */
   reloadToken: number;
@@ -85,6 +88,22 @@ const AccordionBlock: React.FC<{ def: IScreenDef; content: Extract<IScreenDef['c
   );
 };
 
+/* ---------- countries ---------- */
+
+const CountriesBlock: React.FC<{ def: IScreenDef; listTitle: string } & IScreenDataDefaults> = (p) => {
+  const data = useCountryList(p.listTitle, p.dataSiteUrl);
+  const first = React.useRef(true);
+  React.useEffect(() => {
+    if (first.current) { first.current = false; return; }
+    data.refresh().catch(() => undefined);
+  }, [p.reloadToken]);
+  return (
+    <NeuCard title={p.def.label} meta={data.rows.length > 0 ? `${data.rows.length} countries · ${p.listTitle}` : p.def.caption}>
+      <CountryExplorer data={data} listTitle={p.listTitle} siteUrl={p.siteUrl} isEditMode={p.isEditMode} />
+    </NeuCard>
+  );
+};
+
 /* ---------- dispatcher ---------- */
 
 export const ScreenContent: React.FC<IScreenContentProps> = (props) => {
@@ -101,6 +120,8 @@ export const ScreenContent: React.FC<IScreenContentProps> = (props) => {
       );
     case 'accordion':
       return <AccordionBlock key={def.key} def={def} content={c} {...props} />;
+    case 'countries':
+      return <CountriesBlock key={def.key} def={def} {...props} listTitle={c.listTitle || props.countriesListTitle} />;
     default:
       return (
         <NeuCard title={def.label} meta={`Screen ${props.index + 1} of ${SCREENS.length}`}>

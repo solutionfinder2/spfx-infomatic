@@ -19,6 +19,8 @@ export interface IInfomaticProps {
   documentLayout: DocumentViewerLayout;
   /** File shown by single-document screens (empty = newest file). */
   singleDocumentName: string;
+  /** Countries reference list (spfx-vector-map schema) for the Countries screen. */
+  countriesListTitle: string;
   /** Rows / files read per source (1–50). */
   maxItems: number;
   /** Theme used until the user picks one with the switcher. */

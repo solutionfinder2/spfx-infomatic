@@ -337,6 +337,7 @@ const InfomaticBody: React.FC<IInfomaticProps> = (props) => {
         accordionLayout={props.accordionLayout}
         documentLayout={props.documentLayout}
         singleDocumentName={props.singleDocumentName}
+        countriesListTitle={props.countriesListTitle}
         isEditMode={props.isEditMode}
         reloadToken={reloadToken}
       />
