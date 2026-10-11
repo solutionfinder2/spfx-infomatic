@@ -17,6 +17,8 @@ export interface IInfomaticProps {
   accordionCategoryField: string;
   accordionLayout: AccordionLayout;
   documentLayout: DocumentViewerLayout;
+  /** File shown by single-document screens (empty = newest file). */
+  singleDocumentName: string;
   /** Rows / files read per source (1–50). */
   maxItems: number;
   /** Theme used until the user picks one with the switcher. */

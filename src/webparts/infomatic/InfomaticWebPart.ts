@@ -33,6 +33,8 @@ export interface IInfomaticWebPartProps {
   accordionLayout: string;
   /** 'strip' | 'sidebarLeft' | 'sidebarRight' | 'grid' */
   documentLayout: string;
+  /** File name for the single-document screen; empty = newest file. */
+  singleDocumentName: string;
   maxItems: number;
   /** 'site' = follow the SharePoint section theme; 'light' | 'dark' = force. */
   defaultTheme: string;
@@ -67,6 +69,7 @@ export default class InfomaticWebPart extends BaseClientSideWebPart<IInfomaticWe
           ? this.properties.accordionLayout : 'accordion') as AccordionLayout,
         documentLayout: (['strip', 'sidebarLeft', 'sidebarRight', 'grid'].indexOf(this.properties.documentLayout) >= 0
           ? this.properties.documentLayout : 'strip') as DocumentViewerLayout,
+        singleDocumentName: this.properties.singleDocumentName || '',
         maxItems: this.properties.maxItems || 8,
         defaultTheme,
         showThemeToggle: this.properties.showThemeToggle !== false,
@@ -133,6 +136,11 @@ export default class InfomaticWebPart extends BaseClientSideWebPart<IInfomaticWe
                   label: 'Document library title',
                   description: 'Newest files are shown as tiles. Empty = no files section.',
                   placeholder: 'Documents'
+                }),
+                PropertyPaneTextField('singleDocumentName', {
+                  label: 'Single document',
+                  description: 'File shown by the single-document screen ("Document", screen 6), e.g. Handbook.pdf. Must be in the library above. Empty = the newest file.',
+                  placeholder: 'Handbook.pdf'
                 }),
                 PropertyPaneTextField('accordionListTitle', {
                   label: 'Accordion list title',

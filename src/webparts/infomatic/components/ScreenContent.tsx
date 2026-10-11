@@ -23,6 +23,8 @@ export interface IScreenDataDefaults {
   accordionCategoryField: string;
   accordionLayout: AccordionLayout;
   documentLayout: DocumentViewerLayout;
+  /** File name for single-document screens (property pane "Single document"). */
+  singleDocumentName: string;
   isEditMode: boolean;
   /** Bumped by the header Refresh button; blocks reload when it changes. */
   reloadToken: number;
@@ -34,7 +36,7 @@ export interface IScreenContentProps extends IScreenDataDefaults {
 
 /* ---------- documents ---------- */
 
-const DocumentsBlock: React.FC<{ def: IScreenDef; libraryTitle: string; layout: DocumentViewerLayout } & IScreenDataDefaults> = (p) => {
+const DocumentsBlock: React.FC<{ def: IScreenDef; libraryTitle: string; layout: DocumentViewerLayout; single?: boolean; fileName?: string } & IScreenDataDefaults> = (p) => {
   // the viewer browses the whole library (newest 100), independent of "Items per source"
   const library = useLibraryFiles(p.libraryTitle, 100, p.dataSiteUrl);
   const first = React.useRef(true);
@@ -43,9 +45,12 @@ const DocumentsBlock: React.FC<{ def: IScreenDef; libraryTitle: string; layout: 
     library.refresh().catch(() => undefined);
   }, [p.reloadToken]);
   const n = library.files.length;
+  const meta = p.single
+    ? (p.fileName || (n > 0 ? 'newest file' : p.def.caption))
+    : n > 0 ? `${n}${library.total > n ? ` of ${library.total}` : ''} file${n === 1 ? '' : 's'} · newest first` : p.def.caption;
   return (
-    <NeuCard title={p.libraryTitle || p.def.label} meta={n > 0 ? `${n}${library.total > n ? ` of ${library.total}` : ''} file${n === 1 ? '' : 's'} · newest first` : p.def.caption}>
-      <DocumentViewer files={library.files} siteUrl={p.siteUrl} libraryTitle={p.libraryTitle} loading={library.loading} error={library.error} isEditMode={p.isEditMode} layout={p.layout} />
+    <NeuCard title={p.single ? p.def.label : (p.libraryTitle || p.def.label)} meta={meta}>
+      <DocumentViewer files={library.files} siteUrl={p.siteUrl} libraryTitle={p.libraryTitle} loading={library.loading} error={library.error} isEditMode={p.isEditMode} layout={p.layout} single={p.single} fileName={p.fileName} />
     </NeuCard>
   );
 };
@@ -87,7 +92,13 @@ export const ScreenContent: React.FC<IScreenContentProps> = (props) => {
   const c = def.content;
   switch (c.type) {
     case 'documents':
-      return <DocumentsBlock key={def.key} def={def} {...props} libraryTitle={c.libraryTitle || props.libraryTitle} layout={c.layout || props.documentLayout} />;
+      return (
+        <DocumentsBlock key={def.key} def={def} {...props}
+          libraryTitle={c.libraryTitle || props.libraryTitle}
+          layout={c.layout || props.documentLayout}
+          single={c.single}
+          fileName={c.single ? (c.fileName || props.singleDocumentName) : undefined} />
+      );
     case 'accordion':
       return <AccordionBlock key={def.key} def={def} content={c} {...props} />;
     default:

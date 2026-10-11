@@ -3,7 +3,7 @@
   "solution": {
     "name": "spfx-infomatic-client-side-solution",
     "id": "42d1a5d1-c689-4dea-a6a9-109cfd535470",
-    "version": "1.4.2.0",
+    "version": "1.5.0.0",
     "includeClientSideAssets": true,
     "skipFeatureDeployment": true,
     "isDomainIsolated": false,
@@ -30,7 +30,7 @@
         "title": "spfx-infomatic Feature",
         "description": "The feature that activates elements of the spfx-infomatic solution.",
         "id": "c8c981da-049d-4383-8656-1e75cac88576",
-        "version": "1.4.2.0"
+        "version": "1.5.0.0"
       }
     ]
   },

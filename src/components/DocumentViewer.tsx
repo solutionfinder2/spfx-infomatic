@@ -33,16 +33,25 @@ export interface IDocumentViewerProps {
   error?: string;
   isEditMode: boolean;
   layout?: DocumentViewerLayout;
+  /** FEATURE (ask: "a document viewer but for one document only"): no file picker, one file. */
+  single?: boolean;
+  /** File to show in `single` mode — leaf name ("Handbook.pdf") or server-relative URL; empty = newest file. */
+  fileName?: string;
 }
 
-export const DocumentViewer: React.FC<IDocumentViewerProps> = ({ files, siteUrl, libraryTitle, loading, error, isEditMode, layout = 'strip' }) => {
-  const isSidebar = layout === 'sidebarLeft' || layout === 'sidebarRight';
+export const DocumentViewer: React.FC<IDocumentViewerProps> = ({ files, siteUrl, libraryTitle, loading, error, isEditMode, layout = 'strip', single = false, fileName }) => {
+  const isSidebar = !single && (layout === 'sidebarLeft' || layout === 'sidebarRight');
   const origin = window.location.origin;
   const [selectedId, setSelectedId] = React.useState<number | undefined>(undefined);
   const [frameLoading, setFrameLoading] = React.useState<boolean>(false);
 
+  // single mode: the named file (case-insensitive leaf name or server-relative path), else the newest
+  const wanted = (fileName || '').trim().toLowerCase();
+  const named = single && wanted ? files.filter(f => f.Name.toLowerCase() === wanted || f.Url.toLowerCase() === wanted || f.Url.toLowerCase().endsWith(`/${wanted}`))[0] : undefined;
+  const namedMissing = single && !!wanted && files.length > 0 && !named;
+
   // keep the selection valid; default to the newest file
-  const selected = files.filter(f => f.Id === selectedId)[0] || files[0];
+  const selected = single ? (named || files[0]) : (files.filter(f => f.Id === selectedId)[0] || files[0]);
   React.useEffect(() => {
     if (selected && selected.Id !== selectedId) { setSelectedId(selected.Id); }
   }, [selected, selectedId]);
@@ -169,7 +178,15 @@ export const DocumentViewer: React.FC<IDocumentViewerProps> = ({ files, siteUrl,
   return (
     <div className={styles.root}>
       {isEditMode && error && <NeuNotice kind="warn">Library &quot;{libraryTitle}&quot;: {error}</NeuNotice>}
-      {isSidebar
+      {isEditMode && namedMissing && <NeuNotice kind="warn">&quot;{fileName}&quot; was not found among the newest {files.length} files of &quot;{libraryTitle}&quot; — showing the newest file instead. Check the name in <strong>Single document</strong>.</NeuNotice>}
+      {single
+        ? (
+          <>
+            {viewer}
+            {current}
+          </>
+        )
+        : isSidebar
         ? (
           <div className={`${styles.sidebarWrap} ${layout === 'sidebarRight' ? styles.sidebarOnRight : ''}`}>
             {sideList}
@@ -179,13 +196,13 @@ export const DocumentViewer: React.FC<IDocumentViewerProps> = ({ files, siteUrl,
             </div>
           </div>
         )
-        : (
-          <>
-            {viewer}
-            {current}
-            {layout === 'grid' ? grid : strip}
-          </>
-        )}
+          : (
+            <>
+              {viewer}
+              {current}
+              {layout === 'grid' ? grid : strip}
+            </>
+          )}
     </div>
   );
 };

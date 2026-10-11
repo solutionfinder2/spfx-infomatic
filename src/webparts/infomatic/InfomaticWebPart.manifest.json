@@ -33,6 +33,7 @@
       "accordionCategoryField": "Category",
       "accordionLayout": "accordion",
       "documentLayout": "strip",
+      "singleDocumentName": "",
       "maxItems": 8,
       "defaultTheme": "site",
       "showThemeToggle": true,

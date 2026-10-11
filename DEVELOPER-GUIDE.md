@@ -126,7 +126,10 @@ Document library ─┘  getSP(context)     └─ useLibraryFiles┘        │
   (`.sidebarWrap` grid `280px | 1fr`, vertical rows in a scrollable `<nav>`, `order` flips for
   right, stacks < 760 px), `grid` (`auto-fill minmax(150px, 1fr)` tiles). The viewer, current-file
   row and renderers are shared by all layouts. Web part property `documentLayout` is the default; a
-  screen's `content.layout` overrides it.
+  screen's `content.layout` overrides it. `single` (1.5.0) drops the picker and shows one file:
+  `fileName` matched case-insensitively against the leaf name, the server-relative URL or its tail;
+  no match → newest file plus an editor-only notice. The screen def's `fileName` wins over the web
+  part property `singleDocumentName`. Note the match runs over the newest 100 files the block loads.
 - **Full screen** (1.1.0): copied from the Biography web part — `isFullScreen` toggles
   `neu.fullScreenMode` (fixed, inset 0, z-index 100000) on `NeuRoot`, `fullScreenTop` is the max
   `bottom` of `#SuiteNavWrapper, #SuiteNavPlaceholder, #SuiteNavPlaceHolder, #O365_NavHeader,
