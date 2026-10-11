@@ -1,0 +1,168 @@
+.wrap {
+  width: 100%;
+}
+
+/* ---------- the arc layout (wide screens) ---------- */
+
+.ring {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 100 / 62;
+  min-height: 300px;
+  /* room for the bottom node's label */
+  margin-bottom: 72px;
+}
+
+.center {
+  position: absolute;
+  transform: translate(-50%, -50%);
+}
+
+.centerDisc {
+  width: 190px;
+  height: 190px;
+}
+
+.centerText {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0 22px;
+}
+
+.centerTitle {
+  font-size: 18px;
+  line-height: 1.15;
+}
+
+.centerSubtitle {
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--neu-muted);
+}
+
+.beadBig {
+  width: 16px;
+  height: 16px;
+}
+
+.beadSmall {
+  width: 10px;
+  height: 10px;
+}
+
+.node {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.text {
+  position: absolute;
+  width: 160px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: inherit;
+  text-decoration: none;
+
+  &[role='button'] {
+    cursor: pointer;
+  }
+}
+
+.left {
+  right: 100%;
+  margin-right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  text-align: right;
+  align-items: flex-end;
+}
+
+.right {
+  left: 100%;
+  margin-left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  text-align: left;
+  align-items: flex-start;
+}
+
+.bottom {
+  top: 100%;
+  left: 50%;
+  margin-top: 10px;
+  transform: translateX(-50%);
+  text-align: center;
+  align-items: center;
+}
+
+.caption {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--neu-accent-1);
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--neu-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.description {
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--neu-muted);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+/* ---------- list fallback (narrow screens) ---------- */
+
+.list {
+  display: none;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.listItem {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.listText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+@media screen and (max-width: 700px) {
+  .ring {
+    display: none;
+  }
+
+  .list {
+    display: flex;
+  }
+}

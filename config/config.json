@@ -1,0 +1,18 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "infomatic-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/infomatic/InfomaticWebPart.js",
+          "manifest": "./src/webparts/infomatic/InfomaticWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "InfomaticWebPartStrings": "lib/webparts/infomatic/loc/{locale}.js"
+  }
+}

@@ -1,0 +1,303 @@
+/*
+ * Neumorphic design system — shared by every component in the solution.
+ *
+ * Everything is driven by CSS custom properties set on `.root`; the theme is
+ * switched by `data-theme="light|dark"` on that same element (ThemeProvider).
+ * Soft-UI rule: ONE background colour, depth comes only from a light shadow
+ * (top-left) and a dark shadow (bottom-right). Raised = outside shadows,
+ * pressed = inset shadows.
+ */
+
+$radius: 22px;
+$radiusSm: 14px;
+
+.root {
+  /* light (default) */
+  --neu-bg: #e9edf3;
+  --neu-bg-raised: linear-gradient(145deg, #f3f6fa, #dfe4eb);
+  --neu-shadow-dark: rgba(163, 177, 198, 0.6);
+  --neu-shadow-light: rgba(255, 255, 255, 0.95);
+  --neu-text: #3b4252;
+  --neu-muted: #7d879a;
+  --neu-line: rgba(163, 177, 198, 0.35);
+  --neu-accent-1: #1f6feb;
+  --neu-accent-2: #22b8cf;
+  --neu-accent-soft: rgba(31, 111, 235, 0.12);
+  --neu-danger: #d13438;
+  --neu-success: #107c10;
+
+  --neu-raise: 9px 9px 18px var(--neu-shadow-dark), -9px -9px 18px var(--neu-shadow-light);
+  --neu-raise-sm: 5px 5px 10px var(--neu-shadow-dark), -5px -5px 10px var(--neu-shadow-light);
+  --neu-press: inset 6px 6px 12px var(--neu-shadow-dark), inset -6px -6px 12px var(--neu-shadow-light);
+  --neu-press-sm: inset 3px 3px 6px var(--neu-shadow-dark), inset -3px -3px 6px var(--neu-shadow-light);
+
+  background: var(--neu-bg);
+  color: var(--neu-text);
+  font-family: "Segoe UI", "Segoe UI Web (West European)", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif;
+  border-radius: $radius;
+  padding: 24px;
+  box-sizing: border-box;
+  transition: background 0.35s ease, color 0.35s ease;
+
+  * {
+    box-sizing: border-box;
+  }
+}
+
+.root[data-theme='dark'] {
+  --neu-bg: #262a33;
+  --neu-bg-raised: linear-gradient(145deg, #2a2f39, #22262e);
+  --neu-shadow-dark: rgba(0, 0, 0, 0.55);
+  --neu-shadow-light: rgba(255, 255, 255, 0.06);
+  --neu-text: #e6e9f0;
+  --neu-muted: #98a2b3;
+  --neu-line: rgba(255, 255, 255, 0.08);
+  --neu-accent-1: #5b9bff;
+  --neu-accent-2: #3dd6e3;
+  --neu-accent-soft: rgba(91, 155, 255, 0.16);
+  --neu-danger: #f1707b;
+  --neu-success: #6ccb5f;
+}
+
+/* ---------- surfaces ---------- */
+
+.raised {
+  background: var(--neu-bg);
+  border-radius: $radius;
+  box-shadow: var(--neu-raise);
+  transition: box-shadow 0.35s ease, background 0.35s ease;
+}
+
+.raisedSm {
+  background: var(--neu-bg);
+  border-radius: $radiusSm;
+  box-shadow: var(--neu-raise-sm);
+  transition: box-shadow 0.35s ease, background 0.35s ease;
+}
+
+.pressed {
+  background: var(--neu-bg);
+  border-radius: $radiusSm;
+  box-shadow: var(--neu-press);
+  transition: box-shadow 0.35s ease, background 0.35s ease;
+}
+
+.pressedSm {
+  background: var(--neu-bg);
+  border-radius: $radiusSm;
+  box-shadow: var(--neu-press-sm);
+}
+
+.card {
+  @extend .raised;
+  padding: 20px 22px;
+  min-width: 0;
+}
+
+.cardTitle {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.cardTitleMeta {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--neu-muted);
+}
+
+/* ---------- circles (the sample's icon rings) ---------- */
+
+.circle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--neu-bg);
+  box-shadow: var(--neu-raise);
+  transition: box-shadow 0.35s ease, transform 0.2s ease;
+  flex-shrink: 0;
+
+  /* inner pressed ring */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 12%;
+    border-radius: 50%;
+    box-shadow: var(--neu-press-sm);
+  }
+}
+
+.circleSm {
+  @extend .circle;
+  box-shadow: var(--neu-raise-sm);
+}
+
+.circleIcon {
+  position: relative;
+  z-index: 1;
+  font-size: 22px;
+  background: linear-gradient(135deg, var(--neu-accent-1), var(--neu-accent-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: var(--neu-accent-1);
+}
+
+.bead {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--neu-bg);
+  box-shadow: var(--neu-raise-sm);
+  transform: translate(-50%, -50%);
+}
+
+/* ---------- typography ---------- */
+
+.gradientText {
+  background: linear-gradient(90deg, var(--neu-accent-1), var(--neu-accent-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: var(--neu-accent-1);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.muted {
+  color: var(--neu-muted);
+}
+
+.small {
+  font-size: 12px;
+}
+
+.link {
+  color: var(--neu-accent-1);
+  text-decoration: none;
+
+  &:hover,
+  &:focus {
+    text-decoration: underline;
+  }
+}
+
+/* ---------- controls ---------- */
+
+.button {
+  @extend .raisedSm;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border: 0;
+  cursor: pointer;
+  color: var(--neu-text);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  user-select: none;
+  outline-offset: 3px;
+
+  &:hover {
+    color: var(--neu-accent-1);
+  }
+
+  &:active,
+  &[aria-pressed='true'] {
+    box-shadow: var(--neu-press-sm);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+}
+
+.iconButton {
+  @extend .button;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+/* theme toggle: pressed track + raised knob */
+.toggle {
+  @extend .pressedSm;
+  position: relative;
+  width: 74px;
+  height: 36px;
+  border-radius: 18px;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+  color: var(--neu-muted);
+  outline-offset: 3px;
+}
+
+.toggleIcon {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  transition: color 0.3s ease;
+}
+
+.toggleSun {
+  left: 11px;
+}
+
+.toggleMoon {
+  right: 11px;
+}
+
+.toggleOn {
+  color: var(--neu-accent-1);
+}
+
+.toggleKnob {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--neu-bg-raised);
+  box-shadow: var(--neu-raise-sm);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.35s ease;
+}
+
+.toggle[aria-checked='true'] .toggleKnob {
+  transform: translateX(38px);
+}
+
+/* ---------- notices ---------- */
+
+.notice {
+  @extend .pressedSm;
+  padding: 10px 14px;
+  font-size: 13px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.noticeWarn {
+  color: var(--neu-danger);
+}
+
+.noticeInfo {
+  color: var(--neu-muted);
+}

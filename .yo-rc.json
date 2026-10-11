@@ -1,0 +1,22 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "whichFolder": "subdir",
+    "solutionName": "spfx-infomatic",
+    "useGulp": false,
+    "componentType": "webpart",
+    "template": "react",
+    "componentName": "Infomatic",
+    "plusBeta": false,
+    "isCreatingSolution": true,
+    "nodeVersion": "22.13.1",
+    "sdksVersions": {},
+    "version": "1.23.2",
+    "libraryName": "spfx-infomatic",
+    "libraryId": "42d1a5d1-c689-4dea-a6a9-109cfd535470",
+    "environment": "spo",
+    "packageManager": "npm",
+    "solutionShortDescription": "Infomatic - neumorphic dashboard for SharePoint lists and libraries",
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false
+  }
+}
