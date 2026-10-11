@@ -3,6 +3,8 @@ import type { ThemeMode } from '../../../theme/ThemeContext';
 export interface IInfomaticProps {
   title: string;
   subtitle?: string;
+  /** Site that holds the list and library; empty = the current site. */
+  dataSiteUrl?: string;
   /** SharePoint list read for the ring and the table. Empty = ring shows the files instead. */
   listTitle: string;
   /** Document library read for the file tiles. Empty = no files section. */

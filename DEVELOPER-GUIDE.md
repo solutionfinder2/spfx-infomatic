@@ -73,6 +73,10 @@ Document library ─┘  getSP(context)     └─ useLibraryFiles┘        │
   sits at angle `180 + i·180/(n−1)` degrees (left → bottom → right). Labels go left of the node for
   angles < 255°, right for > 285°, below otherwise. Under 700 px the arc is hidden and the `<ol>`
   fallback is shown.
+- **Site URL** (1.0.1): `services/pnpjsConfig.ts` `normalizeSiteUrl()` + `getWeb(siteUrl?)` →
+  `Web([sp.web, url])` or `sp.web`; both hooks take a trailing `siteUrl` and have it in their deps.
+  Library size comes from `File/Length` with `$expand=File` — `File_x0020_Size` is a computed view
+  field and the REST items endpoint rejects it in `$select`.
 - **Hooks** probe the list once (`fields.select('InternalName')`) and select the optional columns only
   when present; both expose `total` (ItemCount) in addition to the rows, so the KPI discs are right
   even when `maxItems` is small. The library hook rejects non-library templates with a readable

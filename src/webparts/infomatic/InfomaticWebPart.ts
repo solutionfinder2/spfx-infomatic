@@ -19,6 +19,8 @@ import type { ThemeMode } from '../../theme/ThemeContext';
 export interface IInfomaticWebPartProps {
   title: string;
   subtitle: string;
+  /** Site that holds the list and library (absolute URL); empty = current site. */
+  dataSiteUrl: string;
   listTitle: string;
   libraryTitle: string;
   maxItems: number;
@@ -44,6 +46,7 @@ export default class InfomaticWebPart extends BaseClientSideWebPart<IInfomaticWe
       {
         title: this.properties.title,
         subtitle: this.properties.subtitle,
+        dataSiteUrl: this.properties.dataSiteUrl,
         listTitle: this.properties.listTitle,
         libraryTitle: this.properties.libraryTitle,
         maxItems: this.properties.maxItems || 8,
@@ -92,6 +95,16 @@ export default class InfomaticWebPart extends BaseClientSideWebPart<IInfomaticWe
             {
               groupName: 'Data sources',
               groupFields: [
+                PropertyPaneTextField('dataSiteUrl', {
+                  label: 'Site URL',
+                  description: 'Site that holds the list and the library. Leave empty for the site this page belongs to (on a subsite, lists of the parent site need the parent URL).',
+                  placeholder: 'https://contoso.sharepoint.com/sites/Intranet',
+                  onGetErrorMessage: (value: string) => {
+                    const v = (value || '').trim();
+                    return !v || /^https:\/\/[^/\s]+(\/.*)?$/i.test(v) ? '' : 'Enter the full https:// site URL, or leave empty for the current site.';
+                  },
+                  deferredValidationTime: 500
+                }),
                 PropertyPaneTextField('listTitle', {
                   label: 'List title',
                   description: 'Rows feed the infographic ring and the list card. Optional columns Description, Icon (Fluent icon name), Category and SortOrder are used when present. Empty = the ring shows the files.',

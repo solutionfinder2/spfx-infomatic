@@ -25,6 +25,7 @@
     "properties": {
       "title": "Infomatic",
       "subtitle": "Data from your list and library, at a glance",
+      "dataSiteUrl": "",
       "listTitle": "",
       "libraryTitle": "Documents",
       "maxItems": 8,

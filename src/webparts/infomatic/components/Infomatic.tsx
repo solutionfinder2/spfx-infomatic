@@ -8,6 +8,7 @@ import { NeuRing, IRingNode } from '../../../components/neu/NeuRing';
 import { useListItems } from '../../../hooks/useListItems';
 import { useLibraryFiles } from '../../../hooks/useLibraryFiles';
 import { fileIcon, formatBytes, formatDate, timeAgo } from '../../../models/ILibraryFile';
+import { normalizeSiteUrl } from '../../../services/pnpjsConfig';
 
 /** Icons cycled for list rows without an "Icon" column — same set as the sample. */
 const RING_ICONS = ['Ringer', 'Work', 'Globe', 'Lightbulb', 'Contact', 'PieDouble', 'Settings', 'Rocket', 'Shield'];
@@ -22,9 +23,11 @@ const pad = (n: number): string => String(n).padStart(2, '0');
  */
 const InfomaticBody: React.FC<IInfomaticProps> = (props) => {
   const max = Math.max(1, Math.min(props.maxItems || 8, 50));
-  const list = useListItems(props.listTitle, max);
-  const library = useLibraryFiles(props.libraryTitle, max);
+  const list = useListItems(props.listTitle, max, props.dataSiteUrl);
+  const library = useLibraryFiles(props.libraryTitle, max, props.dataSiteUrl);
   const loading = list.loading || library.loading;
+  // links (item forms, list / library pages) must point at the site the data comes from
+  const siteUrl = normalizeSiteUrl(props.dataSiteUrl) || props.siteUrl;
   const origin = window.location.origin;
 
   const ringNodes: IRingNode[] = React.useMemo(() => {
@@ -35,7 +38,7 @@ const InfomaticBody: React.FC<IInfomaticProps> = (props) => {
         caption: it.Category || `Step ${pad(i + 1)}`,
         label: it.Title,
         description: it.Description || (it.Modified ? `Updated ${timeAgo(it.Modified)}` : undefined),
-        href: `${props.siteUrl}/Lists/${encodeURIComponent(props.listTitle)}/DispForm.aspx?ID=${it.Id}`
+        href: `${siteUrl}/Lists/${encodeURIComponent(props.listTitle)}/DispForm.aspx?ID=${it.Id}`
       }));
     }
     return library.files.map((f, i) => ({
@@ -46,7 +49,7 @@ const InfomaticBody: React.FC<IInfomaticProps> = (props) => {
       description: `${formatBytes(f.Size)} · ${timeAgo(f.Modified)}`,
       href: `${origin}${f.Url}?web=1`
     }));
-  }, [props.listTitle, props.siteUrl, list.items, library.files, origin]);
+  }, [props.listTitle, siteUrl, list.items, library.files, origin]);
 
   const lastUpdate = React.useMemo(() => {
     const dates = list.items.map(i => i.Modified).concat(library.files.map(f => f.Modified)).filter(Boolean) as string[];
@@ -147,7 +150,7 @@ const InfomaticBody: React.FC<IInfomaticProps> = (props) => {
               {list.items.length === 0 && !list.loading && <div className={styles.empty}>No items.</div>}
               <div className={styles.rows}>
                 {list.items.map((it, i) => (
-                  <a key={it.Id} className={`${neu.pressedSm} ${styles.row}`} href={`${props.siteUrl}/Lists/${encodeURIComponent(props.listTitle)}/DispForm.aspx?ID=${it.Id}`} target="_blank" rel="noopener noreferrer">
+                  <a key={it.Id} className={`${neu.pressedSm} ${styles.row}`} href={`${siteUrl}/Lists/${encodeURIComponent(props.listTitle)}/DispForm.aspx?ID=${it.Id}`} target="_blank" rel="noopener noreferrer">
                     <NeuCircle icon={it.Icon || RING_ICONS[i % RING_ICONS.length]} size={40} small />
                     <div className={styles.rowText}>
                       <span className={styles.rowTitle}>{it.Title}</span>
@@ -162,7 +165,7 @@ const InfomaticBody: React.FC<IInfomaticProps> = (props) => {
               </div>
               <div className={styles.footer}>
                 <span>{list.columns.length > 0 ? `Extra columns: ${list.columns.join(', ')}` : 'Add Description / Icon / Category / SortOrder columns to enrich the view.'}</span>
-                <a className={neu.link} href={`${props.siteUrl}/Lists/${encodeURIComponent(props.listTitle)}`} target="_blank" rel="noopener noreferrer">Open list <Icon iconName="OpenInNewWindow" /></a>
+                <a className={neu.link} href={`${siteUrl}/Lists/${encodeURIComponent(props.listTitle)}`} target="_blank" rel="noopener noreferrer">Open list <Icon iconName="OpenInNewWindow" /></a>
               </div>
             </NeuCard>
           )}
@@ -182,7 +185,7 @@ const InfomaticBody: React.FC<IInfomaticProps> = (props) => {
               </div>
               <div className={styles.footer}>
                 <span>{library.total} item{library.total === 1 ? '' : 's'} in the library</span>
-                <a className={neu.link} href={`${props.siteUrl}/${encodeURIComponent(props.libraryTitle)}`} target="_blank" rel="noopener noreferrer">Open library <Icon iconName="OpenInNewWindow" /></a>
+                <a className={neu.link} href={`${siteUrl}/${encodeURIComponent(props.libraryTitle)}`} target="_blank" rel="noopener noreferrer">Open library <Icon iconName="OpenInNewWindow" /></a>
               </div>
             </NeuCard>
           )}

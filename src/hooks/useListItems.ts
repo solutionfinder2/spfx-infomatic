@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
-import { getSP } from '../services/pnpjsConfig';
+import { getWeb, normalizeSiteUrl } from '../services/pnpjsConfig';
 import { IListItem, LIST_OPTIONAL_COLUMNS } from '../models/IListItem';
+import { friendlyError } from './useLibraryFiles';
 
 export interface IUseListItemsResult {
   items: IListItem[];
@@ -23,7 +24,8 @@ interface IRow {
  * title with PnPjs. Schema-aware: the optional columns in LIST_OPTIONAL_COLUMNS
  * are selected only when the list actually has them, so any list works.
  */
-export const useListItems = (listTitle: string, max: number = 8): IUseListItemsResult => {
+export const useListItems = (listTitle: string, max: number = 8, siteUrl?: string): IUseListItemsResult => {
+  const site = normalizeSiteUrl(siteUrl);
   const [items, setItems] = useState<IListItem[]>([]);
   const [total, setTotal] = useState<number>(0);
   const [columns, setColumns] = useState<string[]>([]);
@@ -36,7 +38,7 @@ export const useListItems = (listTitle: string, max: number = 8): IUseListItemsR
     setLoading(true);
     setError(undefined);
     try {
-      const list = getSP().web.lists.getByTitle(title);
+      const list = getWeb(site).lists.getByTitle(title);
       const [info, fields] = await Promise.all([
         list.select('ItemCount')() as Promise<{ ItemCount: number }>,
         list.fields.select('InternalName')() as Promise<{ InternalName: string }[]>
@@ -62,11 +64,11 @@ export const useListItems = (listTitle: string, max: number = 8): IUseListItemsR
     } catch (e) {
       setItems([]);
       setTotal(0);
-      setError(e instanceof Error ? e.message : String(e));
+      setError(friendlyError(e, title, site));
     } finally {
       setLoading(false);
     }
-  }, [listTitle, max]);
+  }, [listTitle, max, site]);
 
   useEffect(() => { refresh().catch(() => undefined); }, [refresh]);
 

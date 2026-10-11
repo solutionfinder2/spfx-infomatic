@@ -1,6 +1,17 @@
 import { useCallback, useEffect, useState } from 'react';
-import { getSP } from '../services/pnpjsConfig';
+import { getWeb, normalizeSiteUrl } from '../services/pnpjsConfig';
 import { ILibraryFile } from '../models/ILibraryFile';
+
+/** Turns PnPjs / OData errors into one readable line for editors. */
+export const friendlyError = (e: unknown, title: string, site: string): string => {
+  const raw = e instanceof Error ? e.message : String(e);
+  const m = /"value":"([^"]+)"/.exec(raw);
+  const msg = m ? m[1] : raw;
+  if (/does not exist at site/i.test(msg) || /\[404\]/.test(raw)) {
+    return `"${title}" was not found on ${site || 'this site'}. Check the title, or set Site URL if it lives on another site.`;
+  }
+  return msg;
+};
 
 export interface IUseLibraryFilesResult {
   files: ILibraryFile[];
@@ -14,16 +25,20 @@ export interface IUseLibraryFilesResult {
 }
 
 interface IRow {
-  Id: number; FileLeafRef: string; FileRef: string; File_x0020_Size?: string | number; Modified: string;
+  Id: number; FileLeafRef: string; FileRef: string; Modified: string;
   Editor?: { Title?: string; EMail?: string };
+  /** File_x0020_Size is a computed view field and cannot be $selected; File/Length can. */
+  File?: { Length?: string | number };
 }
 
 /**
  * FEATURE (ask: "display data from … library"): the newest `max` files of a
  * document library (folders excluded), newest first, with editor and size.
  * Reads the library as a list so the same code works for any library title.
+ * `siteUrl` (optional) reads the library from another site.
  */
-export const useLibraryFiles = (libraryTitle: string, max: number = 8): IUseLibraryFilesResult => {
+export const useLibraryFiles = (libraryTitle: string, max: number = 8, siteUrl?: string): IUseLibraryFilesResult => {
+  const site = normalizeSiteUrl(siteUrl);
   const [files, setFiles] = useState<ILibraryFile[]>([]);
   const [total, setTotal] = useState<number>(0);
   const [bytes, setBytes] = useState<number>(0);
@@ -36,12 +51,12 @@ export const useLibraryFiles = (libraryTitle: string, max: number = 8): IUseLibr
     setLoading(true);
     setError(undefined);
     try {
-      const list = getSP().web.lists.getByTitle(title);
+      const list = getWeb(site).lists.getByTitle(title);
       const [info, rows] = await Promise.all([
         list.select('ItemCount', 'BaseTemplate')() as Promise<{ ItemCount: number; BaseTemplate: number }>,
         list.items
-          .select('Id', 'FileLeafRef', 'FileRef', 'File_x0020_Size', 'Modified', 'Editor/Title', 'Editor/EMail')
-          .expand('Editor')
+          .select('Id', 'FileLeafRef', 'FileRef', 'Modified', 'Editor/Title', 'Editor/EMail', 'File/Length')
+          .expand('Editor', 'File')
           .filter('FSObjType eq 0')
           .orderBy('Modified', false)
           .top(Math.max(1, Math.min(max, 200)))() as Promise<IRow[]>
@@ -58,7 +73,7 @@ export const useLibraryFiles = (libraryTitle: string, max: number = 8): IUseLibr
           Name: name,
           Url: r.FileRef,
           Extension: dot >= 0 ? name.slice(dot + 1).toLowerCase() : '',
-          Size: Number(r.File_x0020_Size) || 0,
+          Size: r.File && r.File.Length !== undefined ? Number(r.File.Length) || 0 : 0,
           Modified: r.Modified,
           EditorName: r.Editor ? r.Editor.Title : undefined,
           EditorEmail: r.Editor ? r.Editor.EMail : undefined
@@ -71,11 +86,11 @@ export const useLibraryFiles = (libraryTitle: string, max: number = 8): IUseLibr
       setFiles([]);
       setTotal(0);
       setBytes(0);
-      setError(e instanceof Error ? e.message : String(e));
+      setError(friendlyError(e, title, site));
     } finally {
       setLoading(false);
     }
-  }, [libraryTitle, max]);
+  }, [libraryTitle, max, site]);
 
   useEffect(() => { refresh().catch(() => undefined); }, [refresh]);
 

@@ -8,7 +8,7 @@ bottom-right shadow, circular icon discs, gradient accent text.
 
 | | |
 |---|---|
-| Solution | `spfx-infomatic` · 1.0.0.0 |
+| Solution | `spfx-infomatic` · 1.0.1.0 |
 | Web part | **Infomatic** (Advanced group) — hosts: SharePoint page, full page, Teams tab, Teams personal app |
 | Repo | https://github.com/solutionfinder2/spfx-infomatic |
 
@@ -29,7 +29,8 @@ bottom-right shadow, circular icon discs, gradient accent text.
 
 | Group | Setting | Default | Notes |
 | --- | --- | --- | --- |
-| Data sources | List title | empty | Rows for the ring and the list card |
+| Data sources | Site URL (1.0.1) | empty | Site that holds the list and library; empty = the current site. On a subsite, lists of the parent site need the parent URL. Pasted page / list URLs are trimmed to the site |
+| | List title | empty | Rows for the ring and the list card |
 | | Document library title | `Documents` | Newest files for the tiles |
 | | Items per source | 8 | 1 – 50 |
 | Appearance | Title / Subtitle | Infomatic / … | Gradient title in the header and the ring |
@@ -73,4 +74,5 @@ Quality gates: `npx tsc --noEmit -p tsconfig.json` and `npx eslint "src/**/*.{ts
 
 | Version | Highlights |
 | --- | --- |
+| 1.0.1 | Fix: file size is read from `File/Length` (`File_x0020_Size` cannot be `$select`ed and broke every library); **Site URL** setting to read the list / library from another site (`getWeb()` / `normalizeSiteUrl()`); readable "not found on <site>" errors for editors; links follow the data site |
 | 1.0.0 | Neumorphic design system with light / dark switcher (persisted), list + document-library hooks, KPI discs, infographic ring, list rows, file tiles, property pane (data sources, appearance), sample-list script |
