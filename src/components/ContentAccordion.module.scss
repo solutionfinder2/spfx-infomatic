@@ -95,6 +95,95 @@
   color: var(--neu-accent-1);
 }
 
+/* tabs = the chips with a count badge */
+.tabs {
+  padding-top: 2px;
+}
+
+.tabCount {
+  margin-left: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--neu-muted);
+}
+
+/* ---------- sidebar layouts ---------- */
+
+.sidebarWrap {
+  display: grid;
+  grid-template-columns: minmax(180px, 260px) minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+
+.sidebarOnRight {
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 260px);
+
+  .sidebarNav {
+    order: 2;
+  }
+}
+
+.sidebarNav {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sidebarGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sidebarItem {
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  text-align: left;
+  color: var(--neu-text);
+  padding: 11px 14px;
+  outline-offset: 3px;
+
+  &:hover {
+    color: var(--neu-accent-1);
+  }
+}
+
+.sidebarItemActive {
+  color: var(--neu-accent-1);
+}
+
+.sidebarContent {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  .richText {
+    margin: 0;
+  }
+}
+
+.sidebarTitle {
+  margin: 4px 0 0;
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+@media screen and (max-width: 700px) {
+  .sidebarWrap,
+  .sidebarOnRight {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebarOnRight .sidebarNav {
+    order: 0;
+  }
+}
+
 /* ---------- groups and items ---------- */
 
 .group {

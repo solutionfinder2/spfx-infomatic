@@ -334,6 +334,7 @@ const InfomaticBody: React.FC<IInfomaticProps> = (props) => {
         accordionListTitle={props.accordionListTitle}
         accordionContentField={props.accordionContentField}
         accordionCategoryField={props.accordionCategoryField}
+        accordionLayout={props.accordionLayout}
         isEditMode={props.isEditMode}
         reloadToken={reloadToken}
       />

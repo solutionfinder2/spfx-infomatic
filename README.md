@@ -8,7 +8,7 @@ bottom-right shadow, circular icon discs, gradient accent text.
 
 | | |
 |---|---|
-| Solution | `spfx-infomatic` · 1.4.0.0 |
+| Solution | `spfx-infomatic` · 1.4.1.0 |
 | Web part | **Infomatic** (Advanced group) — hosts: SharePoint page, full page, Teams tab, Teams personal app |
 | Repo | https://github.com/solutionfinder2/spfx-infomatic |
 
@@ -49,6 +49,7 @@ bottom-right shadow, circular icon discs, gradient accent text.
 | | Full screen button (1.1.0) | Shown | Hidden = no full-screen mode |
 | | Landing page (1.1.0) | Ring navigation | *Ring navigation* = 8 buttons around the circle + KPI discs; *Cards only* = the 1.0 single page (list and files side by side, no navigation) |
 | | List view · Files view | Available | Hidden = the KPI disc is not clickable / the card is not shown |
+| Styling — accordion | Layout (1.4.1) | Accordion | **Accordion** (groups stacked, sections expand in place) · **Sidebar menu (left / right)** (section titles as a menu, one section in a panel) · **Tabs by category** (the chips become tabs with counts; needs a category column, else falls back to Accordion). A screen can override it in `screens.ts` (`layout`) |
 
 ## Design system
 
@@ -86,6 +87,7 @@ Quality gates: `npx tsc --noEmit -p tsconfig.json` and `npx eslint "src/**/*.{ts
 
 | Version | Highlights |
 | --- | --- |
+| 1.4.1 | Accordion **Layout** setting (Styling — accordion): Accordion / Sidebar menu left / Sidebar menu right / Tabs by category, plus a per-screen `layout` override |
 | 1.4.0 | **Sections screen** (screen 3): neumorphic `ContentAccordion` + `useContentSections` (Showme Accordion schema, search, category chips, expand / collapse all, rich text panels); **reusable screen blocks** — `screens.ts` declares `content: placeholder | documents | accordion` per screen and `ScreenContent.tsx` renders them (each block owns its data hook, header Refresh reloads them); properties *Accordion list title / content column / category column* |
 | 1.3.0 | **Documents screen** (screen 2): `DocumentViewer` — native `<video>` / `<audio>` / `<img>` for media, SharePoint `embed.aspx?UniqueId=` for PDF / Office / other, Stream player for non-browser video formats; file strip, Open / Download; library hook now returns `UniqueId`; viewer reads up to 100 files |
 | 1.2.0 | Ring buttons open **8 dedicated screens** (`screens.ts`, placeholders for now) instead of list items; **compact ring on the left of every screen** (`NeuRing compact`) with the content on the right; screen Previous / Next; item page stays, reached from the list rows |

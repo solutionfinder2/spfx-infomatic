@@ -31,6 +31,7 @@
       "accordionListTitle": "ContentSections",
       "accordionContentField": "Content",
       "accordionCategoryField": "Category",
+      "accordionLayout": "accordion",
       "maxItems": 8,
       "defaultTheme": "site",
       "showThemeToggle": true,

@@ -18,6 +18,8 @@ export type ScreenContentDef =
     listTitle?: string;
     contentField?: string;
     categoryField?: string;
+    /** Overrides the property pane "Accordion layout" for this screen. */
+    layout?: 'accordion' | 'sidebarLeft' | 'sidebarRight' | 'tabs';
     showSearch?: boolean;
     showFilter?: boolean;
     showExpandCollapse?: boolean;

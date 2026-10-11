@@ -15,6 +15,7 @@ import Infomatic from './components/Infomatic';
 import { IInfomaticProps } from './components/IInfomaticProps';
 import { getSP } from '../../services/pnpjsConfig';
 import type { ThemeMode } from '../../theme/ThemeContext';
+import type { AccordionLayout } from '../../components/ContentAccordion';
 
 export interface IInfomaticWebPartProps {
   title: string;
@@ -27,6 +28,8 @@ export interface IInfomaticWebPartProps {
   accordionListTitle: string;
   accordionContentField: string;
   accordionCategoryField: string;
+  /** 'accordion' | 'sidebarLeft' | 'sidebarRight' | 'tabs' */
+  accordionLayout: string;
   maxItems: number;
   /** 'site' = follow the SharePoint section theme; 'light' | 'dark' = force. */
   defaultTheme: string;
@@ -57,6 +60,8 @@ export default class InfomaticWebPart extends BaseClientSideWebPart<IInfomaticWe
         accordionListTitle: this.properties.accordionListTitle,
         accordionContentField: this.properties.accordionContentField || 'Content',
         accordionCategoryField: this.properties.accordionCategoryField || 'Category',
+        accordionLayout: (['accordion', 'sidebarLeft', 'sidebarRight', 'tabs'].indexOf(this.properties.accordionLayout) >= 0
+          ? this.properties.accordionLayout : 'accordion') as AccordionLayout,
         maxItems: this.properties.maxItems || 8,
         defaultTheme,
         showThemeToggle: this.properties.showThemeToggle !== false,
@@ -174,6 +179,20 @@ export default class InfomaticWebPart extends BaseClientSideWebPart<IInfomaticWe
                 }),
                 PropertyPaneToggle('showList', { label: 'List view (via the "List items" disc)', onText: 'Available', offText: 'Hidden' }),
                 PropertyPaneToggle('showFiles', { label: 'Files view (via the "Files & folders" disc)', onText: 'Available', offText: 'Hidden' })
+              ]
+            },
+            {
+              groupName: 'Styling — accordion',
+              groupFields: [
+                PropertyPaneDropdown('accordionLayout', {
+                  label: 'Layout',
+                  options: [
+                    { key: 'accordion', text: 'Accordion' },
+                    { key: 'sidebarLeft', text: 'Sidebar menu (left)' },
+                    { key: 'sidebarRight', text: 'Sidebar menu (right)' },
+                    { key: 'tabs', text: 'Tabs by category' }
+                  ]
+                })
               ]
             }
           ]

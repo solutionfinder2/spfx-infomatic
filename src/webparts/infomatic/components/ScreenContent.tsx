@@ -6,7 +6,7 @@
 import * as React from 'react';
 import { NeuCard, NeuNotice } from '../../../components/neu';
 import { DocumentViewer } from '../../../components/DocumentViewer';
-import { ContentAccordion } from '../../../components/ContentAccordion';
+import { AccordionLayout, ContentAccordion } from '../../../components/ContentAccordion';
 import { useLibraryFiles } from '../../../hooks/useLibraryFiles';
 import { useContentSections } from '../../../hooks/useContentSections';
 import { IScreenDef, SCREENS } from '../screens';
@@ -21,6 +21,7 @@ export interface IScreenDataDefaults {
   accordionListTitle: string;
   accordionContentField: string;
   accordionCategoryField: string;
+  accordionLayout: AccordionLayout;
   isEditMode: boolean;
   /** Bumped by the header Refresh button; blocks reload when it changes. */
   reloadToken: number;
@@ -68,6 +69,7 @@ const AccordionBlock: React.FC<{ def: IScreenDef; content: Extract<IScreenDef['c
         listTitle={listTitle}
         contentField={contentField}
         isEditMode={p.isEditMode}
+        layout={p.content.layout || p.accordionLayout}
         showSearch={p.content.showSearch}
         showFilter={p.content.showFilter}
         showExpandCollapse={p.content.showExpandCollapse}

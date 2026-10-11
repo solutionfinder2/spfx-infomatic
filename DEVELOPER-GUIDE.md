@@ -106,7 +106,13 @@ Document library ─┘  getSP(context)     └─ useLibraryFiles┘        │
   search (plain text of the HTML via `plainTextOf`), category chips (`role=tablist`), expand /
   collapse all, groups, `aria-expanded` section bars, panels animated with the
   `grid-template-rows: 0fr → 1fr` trick (no height measuring), rich text in a pressed surface with
-  `:global()` element styles. `single` = one open section at a time.
+  `:global()` element styles. `single` = one open section at a time. `layout: AccordionLayout`
+  (1.4.1) — `sidebarLeft` / `sidebarRight` render `.sidebarWrap` (grid `260px | 1fr`, `order` flips
+  for right) with a `selectedId` kept valid by an effect (first Expanded, else first visible) and
+  no expand / collapse buttons; `tabs` turns the chips into tabs (no "All", count badge, active tab
+  kept valid) and renders only the active group — it silently falls back to `accordion` when the list
+  has no category column. The web part property `accordionLayout` is the default; a screen's
+  `content.layout` overrides it.
 - **Document viewer** (1.3.0, `components/DocumentViewer.tsx`, screen `documents`): `fileKind(ext)` in
   `models/ILibraryFile.ts` decides the renderer — `video` → `<video src=origin+FileRef>` when
   `isNativeVideo(ext)` (mp4 / webm / m4v / ogv) else the SharePoint embed page (Stream player);

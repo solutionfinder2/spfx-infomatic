@@ -12,11 +12,21 @@ import { neu, NeuButton, NeuNotice } from './neu';
 import { IContentSection, plainTextOf } from '../models/IContentSection';
 import type { IUseContentSectionsResult } from '../hooks/useContentSections';
 
+/**
+ * FEATURE (ask: "add the setting for the Styling accordion Layout"):
+ *   accordion    — every group stacked, sections expand in place
+ *   sidebarLeft  — section titles form a menu on the left, one section shown in a panel
+ *   sidebarRight — same, menu on the right
+ *   tabs         — one tab per category (the chips), that category's sections as an accordion
+ */
+export type AccordionLayout = 'accordion' | 'sidebarLeft' | 'sidebarRight' | 'tabs';
+
 export interface IContentAccordionProps {
   data: IUseContentSectionsResult;
   listTitle: string;
   contentField?: string;
   isEditMode: boolean;
+  layout?: AccordionLayout;
   showSearch?: boolean;
   showFilter?: boolean;
   showExpandCollapse?: boolean;
@@ -26,11 +36,15 @@ export interface IContentAccordionProps {
 
 interface IGroup { category: string; items: IContentSection[] }
 
-export const ContentAccordion: React.FC<IContentAccordionProps> = ({ data, listTitle, contentField, isEditMode, showSearch = true, showFilter = true, showExpandCollapse = true, single = false }) => {
+export const ContentAccordion: React.FC<IContentAccordionProps> = ({ data, listTitle, contentField, isEditMode, layout = 'accordion', showSearch = true, showFilter = true, showExpandCollapse = true, single = false }) => {
   const { sections, loading, error, checked, contentMissing, hasCategory, missingOptional, hiddenByLimit } = data;
+  const isSidebar = layout === 'sidebarLeft' || layout === 'sidebarRight';
+  // tabs need a category column; without one they fall back to the plain accordion
+  const isTabs = layout === 'tabs' && hasCategory;
   const [query, setQuery] = React.useState<string>('');
   const [category, setCategory] = React.useState<string>('');
   const [open, setOpen] = React.useState<Set<number>>(new Set());
+  const [selectedId, setSelectedId] = React.useState<number | undefined>(undefined);
 
   // sections marked Expanded start open — applied once per load
   const initRef = React.useRef<string>('');
@@ -75,8 +89,26 @@ export const ContentAccordion: React.FC<IContentAccordionProps> = ({ data, listT
 
   // while searching, open every match so the found text is visible
   React.useEffect(() => {
-    if (query.trim()) { setOpen(new Set(filtered.map(s => s.Id))); }
-  }, [query, filtered]);
+    if (query.trim() && !isSidebar) { setOpen(new Set(filtered.map(s => s.Id))); }
+  }, [query, filtered, isSidebar]);
+
+  // tabs: keep a valid active tab (first category when none / filtered away)
+  React.useEffect(() => {
+    if (!isTabs) { return; }
+    if (groups.length === 0) { setCategory(''); return; }
+    if (!category || !groups.some(g => g.category === category)) { setCategory(groups[0].category); }
+  }, [isTabs, groups, category]);
+
+  // sidebar: keep a valid selection (first Expanded section, else the first visible one)
+  React.useEffect(() => {
+    if (!isSidebar) { return; }
+    if (filtered.length === 0) { setSelectedId(undefined); return; }
+    if (selectedId === undefined || !filtered.some(s => s.Id === selectedId)) {
+      const preferred = filtered.filter(s => s.Expanded === true)[0] || filtered[0];
+      setSelectedId(preferred.Id);
+    }
+  }, [isSidebar, filtered, selectedId]);
+  const selected = selectedId === undefined ? undefined : sections.filter(s => s.Id === selectedId)[0];
 
   const toggle = (id: number): void => setOpen(prev => {
     const next = single ? new Set<number>() : new Set(prev);
@@ -90,7 +122,11 @@ export const ContentAccordion: React.FC<IContentAccordionProps> = ({ data, listT
     return <NeuNotice kind={isEditMode ? 'warn' : 'info'}>{isEditMode ? 'Set the accordion list title in the property pane.' : 'No content list configured.'}</NeuNotice>;
   }
 
-  const toolbar = (showSearch || (showFilter && hasCategory && categories.length > 1) || (showExpandCollapse && !single)) && (
+  const chipCls = (active: boolean): string => `${active ? neu.pressedSm : neu.raisedSm} ${styles.chip} ${active ? styles.chipActive : ''}`;
+  const showChips = isTabs ? groups.length > 0 : (showFilter && hasCategory && categories.length > 1);
+  const showExpand = showExpandCollapse && !single && !isSidebar;
+
+  const toolbar = (showSearch || showChips || showExpand) && (
     <div className={styles.toolbar}>
       {showSearch && (
         <label className={`${neu.pressedSm} ${styles.search}`}>
@@ -99,22 +135,87 @@ export const ContentAccordion: React.FC<IContentAccordionProps> = ({ data, listT
           {query && <button type="button" className={styles.clear} onClick={() => setQuery('')} aria-label="Clear search"><Icon iconName="Cancel" /></button>}
         </label>
       )}
-      {showExpandCollapse && !single && (
+      {showExpand && (
         <div className={styles.toolbarButtons}>
           <NeuButton icon="ExploreContent" title="Expand all" onClick={expandAll} />
           <NeuButton icon="CollapseContent" title="Collapse all" onClick={collapseAll} />
         </div>
       )}
-      {showFilter && hasCategory && categories.length > 1 && (
-        <div className={styles.chips} role="tablist" aria-label="Filter by category">
-          <button type="button" role="tab" aria-selected={!category} className={`${!category ? neu.pressedSm : neu.raisedSm} ${styles.chip} ${!category ? styles.chipActive : ''}`} onClick={() => setCategory('')}>All</button>
-          {categories.map(c => (
-            <button key={c} type="button" role="tab" aria-selected={category === c} className={`${category === c ? neu.pressedSm : neu.raisedSm} ${styles.chip} ${category === c ? styles.chipActive : ''}`} onClick={() => setCategory(category === c ? '' : c)}>{c}</button>
+      {showChips && (
+        <div className={`${styles.chips} ${isTabs ? styles.tabs : ''}`} role="tablist" aria-label={isTabs ? 'Categories' : 'Filter by category'}>
+          {!isTabs && <button type="button" role="tab" aria-selected={!category} className={chipCls(!category)} onClick={() => setCategory('')}>All</button>}
+          {(isTabs ? groups.map(g => g.category) : categories).map(c => (
+            <button key={c} type="button" role="tab" aria-selected={category === c} className={chipCls(category === c)} onClick={() => setCategory(isTabs || category !== c ? c : '')}>
+              {c}
+              {isTabs && <span className={styles.tabCount}>{groups.filter(g => g.category === c)[0].items.length}</span>}
+            </button>
           ))}
         </div>
       )}
     </div>
   );
+
+  const richText = (s: IContentSection): JSX.Element => (
+    <div className={`${neu.pressedSm} ${styles.richText}`} dangerouslySetInnerHTML={{ __html: s.Content || '' }} />
+  );
+
+  const renderItems = (items: IContentSection[]): JSX.Element[] => items.map(s => {
+    const isOpen = open.has(s.Id);
+    return (
+      <div key={s.Id} className={`${neu.raisedSm} ${styles.item} ${isOpen ? styles.itemOpen : ''}`}>
+        <button type="button" className={styles.head} onClick={() => toggle(s.Id)} aria-expanded={isOpen} aria-controls={`infomatic-section-${s.Id}`}>
+          <span className={styles.headTitle}>{s.Title}</span>
+          <span className={`${neu.circleSm} ${styles.chevron}`}><Icon iconName="ChevronDown" className={isOpen ? styles.chevronOpen : undefined} /></span>
+        </button>
+        <div id={`infomatic-section-${s.Id}`} className={styles.panel} role="region" aria-hidden={!isOpen}>
+          <div className={styles.panelInner}>{richText(s)}</div>
+        </div>
+      </div>
+    );
+  });
+
+  const body = isSidebar
+    ? (
+      <div className={`${styles.sidebarWrap} ${layout === 'sidebarRight' ? styles.sidebarOnRight : ''}`}>
+        <nav className={styles.sidebarNav} aria-label="Sections">
+          {groups.map(g => (
+            <div key={g.category} className={styles.sidebarGroup}>
+              {hasCategory && <span className={`${neu.gradientText} ${styles.groupTitle}`}>{g.category}</span>}
+              {g.items.map(s => {
+                const active = s.Id === selectedId;
+                return (
+                  <button key={s.Id} type="button" className={`${active ? neu.pressedSm : neu.raisedSm} ${styles.sidebarItem} ${active ? styles.sidebarItemActive : ''}`} onClick={() => setSelectedId(s.Id)} aria-current={active ? 'true' : undefined}>
+                    {s.Title}
+                  </button>
+                );
+              })}
+            </div>
+          ))}
+        </nav>
+        <div className={styles.sidebarContent}>
+          {selected
+            ? (
+              <>
+                <h4 className={styles.sidebarTitle}>{selected.Title}</h4>
+                {richText(selected)}
+              </>
+            )
+            : !loading && filtered.length > 0 && <div className={styles.empty}>Select a section from the menu.</div>}
+        </div>
+      </div>
+    )
+    : isTabs
+      ? (
+        <div className={styles.group}>
+          {renderItems((groups.filter(g => g.category === category)[0] || { items: [] }).items)}
+        </div>
+      )
+      : groups.map(g => (
+        <div key={g.category} className={styles.group}>
+          {hasCategory && !category && <h4 className={`${neu.gradientText} ${styles.groupTitle}`}>{g.category}</h4>}
+          {renderItems(g.items)}
+        </div>
+      ));
 
   return (
     <div className={styles.root}>
@@ -134,27 +235,7 @@ export const ContentAccordion: React.FC<IContentAccordionProps> = ({ data, listT
       {!loading && !error && sections.length > 0 && filtered.length === 0 && <NeuNotice>No sections match your search or filter.</NeuNotice>}
       {!loading && !error && checked && !contentMissing && sections.length === 0 && <div className={styles.empty}>No sections to show.</div>}
 
-      {groups.map(g => (
-        <div key={g.category} className={styles.group}>
-          {hasCategory && !category && <h4 className={`${neu.gradientText} ${styles.groupTitle}`}>{g.category}</h4>}
-          {g.items.map(s => {
-            const isOpen = open.has(s.Id);
-            return (
-              <div key={s.Id} className={`${neu.raisedSm} ${styles.item} ${isOpen ? styles.itemOpen : ''}`}>
-                <button type="button" className={styles.head} onClick={() => toggle(s.Id)} aria-expanded={isOpen} aria-controls={`infomatic-section-${s.Id}`}>
-                  <span className={styles.headTitle}>{s.Title}</span>
-                  <span className={`${neu.circleSm} ${styles.chevron}`}><Icon iconName="ChevronDown" className={isOpen ? styles.chevronOpen : undefined} /></span>
-                </button>
-                <div id={`infomatic-section-${s.Id}`} className={styles.panel} role="region" aria-hidden={!isOpen}>
-                  <div className={styles.panelInner}>
-                    <div className={`${neu.pressedSm} ${styles.richText}`} dangerouslySetInnerHTML={{ __html: s.Content || '' }} />
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      ))}
+      {body}
 
       {!loading && !error && hiddenByLimit > 0 && (
         <p className={`${neu.muted} ${neu.small}`}>Showing the first {sections.length} sections; {hiddenByLimit} more {hiddenByLimit === 1 ? 'is' : 'are'} hidden by the section limit.</p>
